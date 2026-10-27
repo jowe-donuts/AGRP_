@@ -1,10 +1,12 @@
 @echo off
-REM Start script for Ay, Gamit Ko 'To! Backend (SQLite + Redis)
-REM This script starts Redis, Celery worker, and FastAPI in parallel
+REM Start script for Ay, Gamit Ko 'To! Backend (No Docker, No Redis)
+REM Runs FastAPI + Celery with in-memory task queue
+REM Simplest setup: just Python, no external services needed
 
 echo.
 echo ========================================
 echo Ay, Gamit Ko 'To! - Backend Startup
+echo (No Docker, No Redis - Pure Python)
 echo ========================================
 echo.
 
@@ -27,30 +29,20 @@ if not defined VIRTUAL_ENV (
 echo Starting services...
 echo.
 
-REM Start Docker Compose (Redis only - SQLite is file-based, no server needed)
-echo [1/3] Starting Redis via Docker Compose...
-start "Docker Compose" cmd /k "docker compose up"
-
-REM Wait a few seconds for Redis to be ready
-timeout /t 3 /nobreak
-
 REM Run Alembic migrations (creates/updates SQLite database)
-echo [2/3] Running database migrations (SQLite)...
+echo [1/2] Running database migrations (SQLite)...
 alembic upgrade head
 if errorlevel 1 (
     echo ERROR: Database migrations failed.
     exit /b 1
 )
 
-REM Start Celery worker
-echo [3/3] Starting Celery worker...
-start "Celery Worker" cmd /k "celery -A app.workers.tasks.CELERY_APP worker -l info -Q agp"
+echo.
+echo [2/2] Starting FastAPI server...
+echo (Celery tasks will run in-process, no separate worker needed)
+echo.
 
-REM Wait a second for Celery to initialize
-timeout /t 2 /nobreak
-
-REM Start FastAPI
-echo [4/4] Starting FastAPI server...
+REM Start FastAPI with Celery in eager mode (synchronous task execution)
 start "FastAPI Server" cmd /k "uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
 
 echo.
@@ -58,12 +50,14 @@ echo ========================================
 echo Services started successfully!
 echo ========================================
 echo.
+echo Frontend:      http://localhost:5173 (run: npm run dev in another terminal)
 echo FastAPI:       http://localhost:8000
 echo Swagger UI:    http://localhost:8000/docs
 echo ReDoc:         http://localhost:8000/redoc
-echo Redis:         localhost:6379
-echo SQLite DB:     ./agp.db (file-based, no server needed)
+echo Database:      ./agp.db (SQLite, file-based)
 echo.
-echo To stop all services, close each window or press Ctrl+C in each terminal.
+echo Background tasks (CLIP embeddings, matching) run synchronously.
+echo.
+echo To stop: close this window or press Ctrl+C
 echo.
 pause

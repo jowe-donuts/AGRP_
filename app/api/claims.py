@@ -14,6 +14,29 @@ router = APIRouter(prefix="/api/claims", tags=["claims"])
 
 
 # -----------------------------------------------------------------------
+# Shared claim state mutation helper
+# -----------------------------------------------------------------------
+def _update_claim_and_item(
+    claim: Claim,
+    new_claim_status: ItemStatus,
+    new_item_status: ItemStatus,
+    session: Session,
+) -> Claim:
+    """Update claim and associated item to new statuses, atomically."""
+    claim.status = new_claim_status
+    session.add(claim)
+
+    item = session.get(Item, claim.item_id)
+    if item:
+        item.status = new_item_status
+        session.add(item)
+
+    session.commit()
+    session.refresh(claim)
+    return claim
+
+
+# -----------------------------------------------------------------------
 # Pydantic schemas
 # -----------------------------------------------------------------------
 class ClaimCreate(BaseModel):
@@ -164,20 +187,7 @@ def approve_claim(
     if not claim:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Claim not found")
 
-    # Update claim status
-    claim.status = ItemStatus.VERIFIED
-    session.add(claim)
-
-    # Update item status
-    item = session.get(Item, claim.item_id)
-    if item:
-        item.status = ItemStatus.VERIFIED
-        session.add(item)
-
-    session.commit()
-    session.refresh(claim)
-
-    return claim
+    return _update_claim_and_item(claim, ItemStatus.VERIFIED, ItemStatus.VERIFIED, session)
 
 
 # -----------------------------------------------------------------------
@@ -194,7 +204,7 @@ def reject_claim(
     session: Session = Depends(get_session),
 ):
     """
-    Reject a claim. The claim remains but is marked for rejection (you can add a reason field later).
+    Reject a claim. The claim is deleted (add a "rejected_at" field to track rejections).
 
     Only accessible to staff or admin.
     """
@@ -202,7 +212,6 @@ def reject_claim(
     if not claim:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Claim not found")
 
-    # For now, we just delete the claim. You could add a "rejected_at" field to track rejections.
     session.delete(claim)
     session.commit()
 
@@ -237,17 +246,4 @@ def return_item(
             detail="Claim must be verified before marking as returned",
         )
 
-    # Update claim status
-    claim.status = ItemStatus.RETURNED
-    session.add(claim)
-
-    # Update item status
-    item = session.get(Item, claim.item_id)
-    if item:
-        item.status = ItemStatus.RETURNED
-        session.add(item)
-
-    session.commit()
-    session.refresh(claim)
-
-    return claim
+    return _update_claim_and_item(claim, ItemStatus.RETURNED, ItemStatus.RETURNED, session)

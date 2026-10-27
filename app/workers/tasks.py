@@ -122,6 +122,7 @@ def run_matching_sweep(item_id: int) -> None:
 
     Raises:
         RuntimeError: If vectorizer or DB operations fail.
+        ValueError: If source item has no embedding or mismatched dimensions in candidates.
     """
     logger.info("Running matching sweep for ItemID = %s", item_id)
 
@@ -130,6 +131,16 @@ def run_matching_sweep(item_id: int) -> None:
         if not source_item:
             logger.error("Item %s not found", item_id)
             return
+
+        # Validate source embedding exists and has valid dimensions.
+        if not source_item.clip_embedding:
+            raise ValueError(f"Item {item_id} has no CLIP embedding; cannot run matching sweep")
+        
+        source_dim = len(source_item.clip_embedding)
+        if source_dim != 512:
+            raise ValueError(
+                f"Item {item_id} embedding has unexpected dimension {source_dim} (expected 512)"
+            )
 
         # Determine opposite status.
         opposite_status = (
@@ -151,23 +162,42 @@ def run_matching_sweep(item_id: int) -> None:
 
         best_score = 0.0
         best_candidate_id: Optional[int] = None
+        dimension_errors = []
 
         # Compute pairwise cosine similarity.
         for cand in candidates:
             try:
+                # Validate candidate dimension matches source before calling match_score.
+                cand_dim = len(cand.clip_embedding) if cand.clip_embedding else 0
+                if cand_dim != source_dim:
+                    dimension_errors.append(
+                        f"Candidate {cand.id}: dim={cand_dim}, source dim={source_dim}"
+                    )
+                    continue
+
                 score = match_score(source_item.clip_embedding, cand.clip_embedding)
             except (ValueError, TypeError) as exc:
+                # This should not happen after validation above, but log if it does.
                 logger.error(
-                    "Mismatched vector dimensions for Item %s vs Candidate %s: %s",
+                    "Unexpected error matching Item %s vs Candidate %s: %s",
                     item_id,
                     cand.id,
                     exc,
                 )
-                continue
+                raise
 
             if score > best_score:
                 best_score = score
                 best_candidate_id = cand.id
+
+        # Log dimension mismatches but don't fail; they're expected during initial setup.
+        if dimension_errors:
+            logger.warning(
+                "Dimension mismatches for Item %s (skipped %d candidates): %s",
+                item_id,
+                len(dimension_errors),
+                "; ".join(dimension_errors[:3]),  # Log first 3 only.
+            )
 
         # Persist the best match result.
         if best_candidate_id is None:

@@ -7,7 +7,6 @@ the request finishes.
 
 from __future__ import annotations
 
-from contextlib import contextmanager
 from typing import Generator
 
 from sqlmodel import Session, create_engine
@@ -23,7 +22,6 @@ def get_engine():
     return engine
 
 
-@contextmanager
 def get_session() -> Generator[Session, None, None]:
     """FastAPI dependency that provides a DB ``Session``.
 

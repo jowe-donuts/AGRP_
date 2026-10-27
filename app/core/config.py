@@ -40,14 +40,29 @@ class Settings(BaseSettings):
     cloud_storage_access_key: str = Field(default="", validation_alias="CLOUD_STORAGE_ACCESS_KEY")
     cloud_storage_secret_key: str = Field(default="", validation_alias="CLOUD_STORAGE_SECRET_KEY")
 
-    # Redis (Celery) configuration
+    # Celery configuration
+    # For local development, use in-memory broker and result backend.
+    # shortcut: development-only; production needs Redis or RabbitMQ
     celery_broker_url: str = Field(
-        default="redis://localhost:6379/0",
+        default="memory://",
         validation_alias="CELERY_BROKER_URL",
     )
     celery_result_backend: str = Field(
-        default="redis://localhost:6379/1",
+        default="cache+memory://",
         validation_alias="CELERY_RESULT_BACKEND",
+    )
+
+    # File upload limits
+    max_upload_size_mb: int = Field(
+        default=10,
+        validation_alias="MAX_UPLOAD_SIZE_MB",
+    )
+
+    # CORS allowed origins (comma-separated)
+    # Default: localhost for development; set explicitly in production
+    cors_origins: str = Field(
+        default="http://localhost:5173,http://localhost:8000",
+        validation_alias="CORS_ORIGINS",
     )
 
 

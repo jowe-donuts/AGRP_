@@ -10,6 +10,43 @@ from app.db.session import get_session
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 
+def _paginate_query(
+    stmt,
+    session: Session,
+    page: int,
+    size: int,
+    result_key: str,
+):
+    """
+    Execute a paginated query and return formatted response.
+
+    Args:
+        stmt: SQLModel select statement (without offset/limit).
+        session: SQLModel session.
+        page: Page number (1-indexed).
+        size: Items per page.
+        result_key: Key name for results in response (e.g., "items", "claims").
+
+    Returns:
+        Dict with results, total, page, size, pages.
+    """
+    # Count total matching records before pagination.
+    count_stmt = select(func.count()).select_from(stmt.subquery())
+    total = session.exec(count_stmt).one()
+
+    # Apply pagination and fetch results.
+    paginated_stmt = stmt.offset((page - 1) * size).limit(size)
+    results = session.exec(paginated_stmt).all()
+
+    return {
+        result_key: results,
+        "total": total,
+        "page": page,
+        "size": size,
+        "pages": (total + size - 1) // size,
+    }
+
+
 @router.get(
     "/stats",
     summary="Get system statistics (admin only)",
@@ -93,23 +130,8 @@ def get_items_by_status(
     session: Session = Depends(get_session),
 ):
     """Get all items with a specific status (paginated)."""
-    stmt = (
-        select(Item)
-        .where(Item.status == status)
-        .offset((page - 1) * size)
-        .limit(size)
-    )
-    items = session.exec(stmt).all()
-    
-    total = session.exec(select(func.count(Item.id)).where(Item.status == status)).one()
-    
-    return {
-        "items": items,
-        "total": total,
-        "page": page,
-        "size": size,
-        "pages": (total + size - 1) // size,
-    }
+    stmt = select(Item).where(Item.status == status)
+    return _paginate_query(stmt, session, page, size, "items")
 
 
 @router.get(
@@ -123,26 +145,8 @@ def get_pending_claims(
     session: Session = Depends(get_session),
 ):
     """Get all claims in CLAIMED status (awaiting verification)."""
-    stmt = (
-        select(Claim)
-        .where(Claim.status == ItemStatus.CLAIMED)
-        .order_by(Claim.created_at.asc())
-        .offset((page - 1) * size)
-        .limit(size)
-    )
-    claims = session.exec(stmt).all()
-    
-    total = session.exec(
-        select(func.count(Claim.id)).where(Claim.status == ItemStatus.CLAIMED)
-    ).one()
-    
-    return {
-        "claims": claims,
-        "total": total,
-        "page": page,
-        "size": size,
-        "pages": (total + size - 1) // size,
-    }
+    stmt = select(Claim).where(Claim.status == ItemStatus.CLAIMED).order_by(Claim.created_at.asc())
+    return _paginate_query(stmt, session, page, size, "claims")
 
 
 @router.get(

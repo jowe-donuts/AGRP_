@@ -63,6 +63,7 @@ class User(SQLModel, table=True):
     role: Role = Field(default=Role.STUDENT, nullable=False)
     is_active: bool = Field(default=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Relationships – forward declarations use string literals to avoid circular imports
     items: List["Item"] = Relationship(back_populates="owner")
@@ -86,6 +87,11 @@ class Item(SQLModel, table=True):
         default_factory=list,
         sa_type=JSON().with_variant(JSONB(), "postgresql"),
     )
+    clip_embedding: Optional[List[float]] = Field(
+        default=None,
+        sa_type=JSON().with_variant(JSONB(), "postgresql"),
+    )
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     owner_id: int = Field(foreign_key="user.id")
     owner: User = Relationship(back_populates="items")
@@ -98,6 +104,7 @@ class Claim(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     # Claim status mirrors ``ItemStatus`` but starts at CLAIMED
     status: ItemStatus = Field(default=ItemStatus.CLAIMED, nullable=False)
 
@@ -120,6 +127,7 @@ class Match(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     item_id: int = Field(foreign_key="item.id", index=True)
     candidate_id: int = Field(foreign_key="item.id", index=True)

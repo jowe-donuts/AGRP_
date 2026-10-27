@@ -5,24 +5,58 @@ import uuid
 from logging import getLogger
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile, status
 from loguru import logger
 from sqlmodel import Session, select
 
-from app.db.models import Category, Item, ItemStatus, Role
+from app.core.dependencies import get_current_user
+from app.db.models import Category, Item, ItemStatus, Role, User
 from app.db.session import get_session
 from app.workers.tasks import generate_item_embedding_worker, run_matching_sweep_worker
 
 router = APIRouter(prefix="/api/items", tags=["items"])
 
 
-def _get_image_public_url(file: UploadFile) -> str:
+def _get_image_public_url(file: UploadFile, request: Request) -> str:
     """
-    Simulate cloud storage upload by writing to a temporary public URL.
+    Save uploaded image file locally and return public URL.
 
-    In production, replace this with Cloudinary/S3 upload and return their public URL.
-    For now, we construct a public HTTP(S) path from the saved file.
+    Validates file size and MIME type before accepting.
+    Uses the request's Host header to construct the URL, so it works
+    across localhost, staging, and production domains.
+
+    Args:
+        file: FastAPI UploadFile object.
+        request: FastAPI Request object (for Host header).
+
+    Returns:
+        Public HTTP(S) URL to the saved file.
+
+    Raises:
+        ValueError: If file size exceeds limit or MIME type is not allowed.
     """
+    from app.core.config import settings
+
+    # Allowed MIME types and extensions for images.
+    ALLOWED_MIMES = {"image/jpeg", "image/png", "image/webp"}
+    ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+    MAX_SIZE_BYTES = settings.max_upload_size_mb * 1024 * 1024
+
+    # Validate MIME type.
+    if file.content_type not in ALLOWED_MIMES:
+        raise ValueError(
+            f"File type not allowed: {file.content_type}. "
+            f"Allowed: {', '.join(ALLOWED_MIMES)}"
+        )
+
+    # Validate file extension.
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise ValueError(
+            f"File extension not allowed: {ext}. "
+            f"Allowed: {', '.join(ALLOWED_EXTENSIONS)}"
+        )
+
     # Create a unique identifier for this file.
     file_id = str(uuid.uuid4())
 
@@ -30,19 +64,72 @@ def _get_image_public_url(file: UploadFile) -> str:
     upload_dir = os.path.join(os.getcwd(), "uploads")
     os.makedirs(upload_dir, exist_ok=True)
 
-    # Append the file extension.
-    ext = os.path.splitext(file.filename)[1] or ".jpg"
     local_path = os.path.join(upload_dir, f"{file_id}{ext}")
 
-    # Save the uploaded file locally (this is a placeholder; in prod, upload to cloud storage instead).
+    # Write file with size limit check.
+    total_size = 0
     with open(local_path, "wb") as f:
         for chunk in file.file:
+            total_size += len(chunk)
+            if total_size > MAX_SIZE_BYTES:
+                # Clean up partial file.
+                f.close()
+                os.remove(local_path)
+                raise ValueError(
+                    f"File exceeds maximum size of {settings.max_upload_size_mb}MB"
+                )
             f.write(chunk)
 
-    # Construct a public URL pointing to this file.
-    # In production, replace with your CDN or cloud‑storage URL scheme.
-    public_url = f"http://localhost:8000/uploads/{file_id}{ext}"
+    # Build URL using the request's Host header to support any domain/port.
+    # Preserves https/http based on request scheme.
+    host = request.headers.get("host", "localhost:8000")
+    scheme = request.url.scheme
+    public_url = f"{scheme}://{host}/uploads/{file_id}{ext}"
     return public_url
+
+
+def _create_item_with_status(
+    title: str,
+    description: str,
+    category: Category,
+    location: str,
+    status: ItemStatus,
+    color: Optional[str],
+    brand: Optional[str],
+    file: Optional[UploadFile],
+    current_user: User,
+    session: Session,
+    request: Request,
+) -> dict:
+    """Unified item creation for lost/found, differing only in status."""
+    image_urls: list[str] = []
+    if file:
+        public_url = _get_image_public_url(file, request)
+        image_urls.append(public_url)
+
+    item = Item(
+        title=title,
+        description=description,
+        category=category,
+        color=color,
+        brand=brand,
+        location=location,
+        status=status,
+        image_urls=image_urls,
+        owner_id=current_user.id,
+    )
+
+    session.add(item)
+    session.commit()
+    session.refresh(item)
+
+    logger.info("Created %s item %s (owner=%s)", status.value, item.id, current_user.id)
+
+    # Enqueue CLIP tasks independently.
+    generate_item_embedding_worker.delay(item.id)
+    run_matching_sweep_worker.delay(item.id)
+
+    return {"id": item.id, "title": item.title}
 
 
 @router.post(
@@ -51,6 +138,7 @@ def _get_image_public_url(file: UploadFile) -> str:
     summary="Report a lost item",
 )
 def create_lost_item(
+    request: Request,
     title: Annotated[str, Form()],
     description: Annotated[str, Form()],
     category: Annotated[Category, Form()],
@@ -58,45 +146,14 @@ def create_lost_item(
     color: Annotated[Optional[str], Form()] = None,
     brand: Annotated[Optional[str], Form()] = None,
     file: Annotated[Optional[UploadFile], File()] = None,
-    current_user_id: int = Depends(lambda sess: 1),  # TODO: Replace with get_current_user(sess)
+    current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
 ):
-    """
-    Create a new lost item with an optional attached photo.
-
-    The file is saved locally (for demo purposes) and the public URL is stored.
-    Two Celery tasks are enqueued: generate the CLIP embedding and then run the matching sweep.
-    """
-    # Attach optional image
-    image_urls: list[str] = []
-    if file:
-        public_url = _get_image_public_url(file)
-        image_urls.append(public_url)
-
-    # Persist the item.
-    item = Item(
-        title=title,
-        description=description,
-        category=category,
-        color=color,
-        brand=brand,
-        location=location,
-        status=ItemStatus.LOST,
-        image_urls=image_urls,
-        owner_id=current_user_id,
+    """Create a new lost item with an optional attached photo."""
+    return _create_item_with_status(
+        title, description, category, location, ItemStatus.LOST,
+        color, brand, file, current_user, session, request
     )
-
-    session.add(item)
-    session.commit()
-    session.refresh(item)
-
-    logger.info("Created lost item %s (owner=%s)", item.id, current_user_id)
-
-    # Enqueue CLIP tasks independently.
-    generate_item_embedding_worker.delay(item.id)
-    run_matching_sweep_worker.delay(item.id)
-
-    return {"id": item.id, "title": item.title}
 
 
 @router.post(
@@ -105,6 +162,7 @@ def create_lost_item(
     summary="Report a found item",
 )
 def create_found_item(
+    request: Request,
     title: Annotated[str, Form()],
     description: Annotated[str, Form()],
     category: Annotated[Category, Form()],
@@ -112,42 +170,14 @@ def create_found_item(
     color: Annotated[Optional[str], Form()] = None,
     brand: Annotated[Optional[str], Form()] = None,
     file: Annotated[Optional[UploadFile], File()] = None,
-    current_user_id: int = Depends(lambda sess: 1),  # TODO: Replace with get_current_user(sess)
+    current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
 ):
-    """
-    Create a new found item with an optional attached photo.
-
-    Response includes the created item and enqueues CLIP embedding & matching tasks.
-    """
-    image_urls: list[str] = []
-    if file:
-        public_url = _get_image_public_url(file)
-        image_urls.append(public_url)
-
-    item = Item(
-        title=title,
-        description=description,
-        category=category,
-        color=color,
-        brand=brand,
-        location=location,
-        status=ItemStatus.FOUND,
-        image_urls=image_urls,
-        owner_id=current_user_id,
+    """Create a new found item with an optional attached photo."""
+    return _create_item_with_status(
+        title, description, category, location, ItemStatus.FOUND,
+        color, brand, file, current_user, session, request
     )
-
-    session.add(item)
-    session.commit()
-    session.refresh(item)
-
-    logger.info("Created found item %s (owner=%s)", item.id, current_user_id)
-
-    # Enqueue CLIP tasks independently.
-    generate_item_embedding_worker.delay(item.id)
-    run_matching_sweep_worker.delay(item.id)
-
-    return {"id": item.id, "title": item.title}
 
 
 @router.get(

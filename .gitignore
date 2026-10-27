@@ -45,6 +45,7 @@ env/
 htmlcov/
 .tox/
 .hypothesis/
+*.prof
 
 # Environment variables
 .env
@@ -62,6 +63,7 @@ uploads/
 tmp/
 temp/
 *.log
+*.pid
 
 # OS
 Thumbs.db
@@ -71,9 +73,12 @@ Thumbs.db
 node_modules/
 dist/
 build/
+.npm
+.eslintcache
 
 # Celery
 celerybeat-schedule
+celerybeat.pid
 
 # IDE settings
 .editorconfig
@@ -91,3 +96,60 @@ local_settings.py
 # Windows
 $RECYCLE.BIN/
 ehthumbs.db
+*.stackdump
+
+# Documentation generated
+site/
+.doctrees/
+
+# Alembic
+versions/__pycache__/
+
+# VS Code
+.vscode/settings.json
+
+# PyCharm
+.idea/
+*.iml
+
+# Test reports
+test-results/
+coverage.xml
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# OS files
+.directory
+.Spotlight-V100
+.Trashes
+
+# Lock files (use specific versions in requirements.txt)
+poetry.lock
+Pipfile.lock
+
+# Production build artifacts
+*.min.js
+*.min.css
+
+# Generated documentation and reports (keep README.md, QUICK_START.md, ENDPOINTS.md)
+*_COMPLETE.md
+*_DONE.md
+*_READY.md
+*_STATUS.md
+*_REPORT.md
+*_SUMMARY.md
+PROJECT_*.md
+SYSTEM_*.md
+INTEGRATION_*.md
+00_START_HERE.md
+GO.md
+START.md
+START_BOTH_SERVICES.md
+CONNECT_FRONTEND_BACKEND.md
+FINAL_*.md
+BACKEND_*.md
+TESTING_*.md

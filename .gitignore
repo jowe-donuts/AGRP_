@@ -1,24 +1,155 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-node_modules
-dist
-dist-ssr
-*.local
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+*.sublime-project
+*.sublime-workspace
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+*.prof
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+agp.db
+
+# Uploads & temp files
+uploads/
+tmp/
+temp/
+*.log
+*.pid
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Node (if frontend is here)
+node_modules/
+dist/
+build/
+.npm
+.eslintcache
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# IDE settings
+.editorconfig
+
+# Local development
+local_settings.py
+
+# Docker
+.dockerignore
+
+# MacOS
+.AppleDouble
+.LSOverride
+
+# Windows
+$RECYCLE.BIN/
+ehthumbs.db
+*.stackdump
+
+# Documentation generated
+site/
+.doctrees/
+
+# Alembic
+versions/__pycache__/
+
+# VS Code
+.vscode/settings.json
+
+# PyCharm
+.idea/
+*.iml
+
+# Test reports
+test-results/
+coverage.xml
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# OS files
+.directory
+.Spotlight-V100
+.Trashes
+
+# Lock files (use specific versions in requirements.txt)
+poetry.lock
+Pipfile.lock
+
+# Production build artifacts
+*.min.js
+*.min.css
+
+# Generated documentation and reports (keep README.md, QUICK_START.md, ENDPOINTS.md)
+*_COMPLETE.md
+*_DONE.md
+*_READY.md
+*_STATUS.md
+*_REPORT.md
+*_SUMMARY.md
+PROJECT_*.md
+SYSTEM_*.md
+INTEGRATION_*.md
+00_START_HERE.md
+GO.md
+START.md
+START_BOTH_SERVICES.md
+CONNECT_FRONTEND_BACKEND.md
+FINAL_*.md
+BACKEND_*.md
+TESTING_*.md

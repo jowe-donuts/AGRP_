@@ -3,7 +3,7 @@ import StudentDashboard from './components/StudentDashboard';
 import AdminPage from './components/AdminPage';
 import RedesignedLanding from './components/RedesignedLanding';
 import { MatchModal, AssistantDrawer, AiPhotoMatchModal } from './components/Shared';
-import { Loader } from 'lucide-react';
+import { Loader, LogOut } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { api } from './services/api';
 

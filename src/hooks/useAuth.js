@@ -20,9 +20,16 @@ export function useAuth() {
         
         if (savedToken) {
           setToken(savedToken);
-          // Verify token by fetching user profile
-          const profile = await api.auth.getProfile(savedToken);
-          setUser(profile);
+          // Verify token by fetching user profile with timeout
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+          
+          try {
+            const profile = await api.auth.getProfile(savedToken);
+            setUser(profile);
+          } finally {
+            clearTimeout(timeoutId);
+          }
         }
       } catch (err) {
         console.error('Auth initialization failed:', err);

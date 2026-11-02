@@ -279,10 +279,30 @@ export default function App() {
   if (!isAuthenticated || authLoading) {
     if (authLoading) {
       return (
-        <div className="min-h-screen bg-[#07090e] flex items-center justify-center">
-          <div className="text-center">
-            <Loader className="w-8 h-8 animate-spin text-violet-500 mx-auto mb-4" />
-            <p className="text-slate-400">Loading...</p>
+        <div style={{
+          minHeight: '100vh',
+          backgroundColor: '#ffffff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              border: '3px solid #fe7141',
+              borderTop: '3px solid transparent',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 16px'
+            }} />
+            <p style={{ color: '#5f5f5f', fontSize: '14px' }}>Loading...</p>
+            <style>{`
+              @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+              }
+            `}</style>
           </div>
         </div>
       );

@@ -133,7 +133,7 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
         </div>
 
         {/* Search */}
-        <div style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '0' }}>
+        <div style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '0', display: 'none' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#ffffff', borderRadius: '4px', padding: '10px 12px', border: '1px solid #e5e7eb' }}>
             <Search style={{ width: '14px', height: '14px', color: '#9ca3af' }} />
             <input

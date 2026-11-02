@@ -135,13 +135,14 @@ Pipfile.lock
 *.min.js
 *.min.css
 
-# Generated documentation and reports (keep README.md, QUICK_START.md, ENDPOINTS.md)
+# Generated documentation and reports (keep README.md, QUICK_START.md, ENDPOINTS.md, REDESIGN_SUMMARY.md)
 *_COMPLETE.md
 *_DONE.md
 *_READY.md
 *_STATUS.md
 *_REPORT.md
 *_SUMMARY.md
+!REDESIGN_SUMMARY.md
 PROJECT_*.md
 SYSTEM_*.md
 INTEGRATION_*.md

@@ -235,27 +235,70 @@ export default function RedesignedLanding() {
 
       {/* Auth Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-8 relative shadow-2xl">
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 1000,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px'
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '4px',
+            maxWidth: '400px',
+            width: '100%',
+            padding: '32px',
+            boxShadow: '0 20px 25px rgba(0, 0, 0, 0.15)',
+            position: 'relative'
+          }}>
             <button 
               onClick={() => setShowModal(false)}
-              className="absolute top-6 right-6 text-gray-400 hover:text-gray-600"
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'none',
+                border: 'none',
+                fontSize: '24px',
+                cursor: 'pointer',
+                color: '#9ca3af'
+              }}
               aria-label="Close modal"
             >
-              <X className="w-5 h-5" />
+              ✕
             </button>
 
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">
+            <h2 style={{
+              fontSize: '20px',
+              fontWeight: 700,
+              color: '#000000',
+              marginBottom: '8px',
+              fontFamily: 'Chivo, sans-serif',
+              textTransform: 'uppercase'
+            }}>
               {isRegister ? 'Create Account' : 'Login'}
             </h2>
-            <p className="text-gray-600 text-sm mb-6">
+            <p style={{
+              fontSize: '14px',
+              color: '#6b7280',
+              marginBottom: '24px'
+            }}>
               {isRegister ? 'Join the campus community' : 'Welcome back'}
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {isRegister && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: '#374151',
+                    marginBottom: '8px'
+                  }}>Full Name</label>
                   <input
                     type="text"
                     name="fullName"
@@ -264,13 +307,26 @@ export default function RedesignedLanding() {
                     placeholder="John Doe"
                     required={isRegister}
                     autoComplete="name"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '4px',
+                      fontSize: '14px',
+                      fontFamily: 'inherit'
+                    }}
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#374151',
+                  marginBottom: '8px'
+                }}>Email</label>
                 <input
                   type="email"
                   name="email"
@@ -279,12 +335,25 @@ export default function RedesignedLanding() {
                   placeholder="student@campus.edu"
                   required
                   autoComplete="email"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    fontFamily: 'inherit'
+                  }}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#374151',
+                  marginBottom: '8px'
+                }}>Password</label>
                 <input
                   type="password"
                   name="password"
@@ -294,12 +363,26 @@ export default function RedesignedLanding() {
                   required
                   autoComplete="current-password"
                   spellCheck={false}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    fontSize: '14px',
+                    fontFamily: 'inherit'
+                  }}
                 />
               </div>
 
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                <div style={{
+                  padding: '12px',
+                  backgroundColor: '#fee2e2',
+                  border: '1px solid #fecaca',
+                  borderRadius: '4px',
+                  color: '#dc2626',
+                  fontSize: '14px'
+                }}>
                   {error}
                 </div>
               )}
@@ -307,7 +390,23 @@ export default function RedesignedLanding() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white py-2 rounded-lg font-semibold transition-all flex items-center justify-center gap-2"
+                style={{
+                  background: loading ? '#ea580c' : '#fe7141',
+                  color: '#000000',
+                  border: 'none',
+                  padding: '12px 16px',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  borderRadius: '4px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.7 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontFamily: 'Chivo, sans-serif'
+                }}
               >
                 {loading ? (
                   <>
@@ -320,23 +419,36 @@ export default function RedesignedLanding() {
               </button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-gray-600 text-sm">
+            <div style={{ marginTop: '24px', textAlign: 'center' }}>
+              <p style={{ fontSize: '14px', color: '#6b7280' }}>
                 {isRegister ? 'Already have an account?' : "Don't have an account?"}{' '}
                 <button
                   onClick={() => {
                     setIsRegister(!isRegister);
                     setError('');
                   }}
-                  className="text-orange-600 hover:text-orange-700 font-semibold"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#fe7141',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
                 >
                   {isRegister ? 'Login' : 'Register'}
                 </button>
               </p>
             </div>
 
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-blue-700 text-xs">
+            <div style={{
+              marginTop: '24px',
+              padding: '12px',
+              backgroundColor: '#dbeafe',
+              border: '1px solid #bfdbfe',
+              borderRadius: '4px'
+            }}>
+              <p style={{ fontSize: '12px', color: '#1e40af', margin: 0 }}>
                 <strong>Demo:</strong> testuser@example.com / testpassword123
               </p>
             </div>

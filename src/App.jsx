@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import StudentPage from './components/StudentPage';
+import StudentDashboard from './components/StudentDashboard';
 import AdminPage from './components/AdminPage';
 import RedesignedLanding from './components/RedesignedLanding';
 import { MatchModal, AssistantDrawer, AiPhotoMatchModal } from './components/Shared';
-import { Shield, User, Sparkles, Camera, LogOut, Loader } from 'lucide-react';
+import { Loader } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { api } from './services/api';
 
@@ -348,12 +348,10 @@ export default function App() {
 
       {/* Main Content */}
       {currentRole === 'student' ? (
-        <StudentPage
+        <StudentDashboard
           items={items}
           onReportNewItem={handleReportNewItem}
           onOpenMatchModal={(item) => setSelectedMatchItem(item)}
-          onOpenAssistant={() => setIsAssistantOpen(true)}
-          onOpenPhotoMatch={() => setIsPhotoMatchOpen(true)}
         />
       ) : (
         <AdminPage

@@ -134,7 +134,7 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
         </div>
 
         {/* Search */}
-        <div style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '32px' }}>
+        <div style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#ffffff', borderRadius: '4px', padding: '10px 12px', border: '1px solid #e5e7eb' }}>
             <Search style={{ width: '14px', height: '14px', color: '#9ca3af' }} />
             <input
@@ -148,11 +148,27 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
           </div>
         </div>
 
-        {/* User & Logout */}
-        <div style={{ marginTop: 'auto', paddingLeft: '12px', paddingRight: '12px', borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
-          <div style={{ fontSize: '12px', marginBottom: '12px', color: '#6b7280' }}>
-            <p style={{ margin: '0 0 2px 0', fontWeight: 700 }}>{user?.full_name}</p>
-            <p style={{ margin: 0, fontSize: '11px' }}>{user?.email}</p>
+        {/* User Profile at Bottom */}
+        <div style={{ marginTop: 'auto', paddingLeft: '12px', paddingRight: '12px', borderTop: '1px solid #e5e7eb', paddingTop: '16px', paddingBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              backgroundColor: '#fe7141',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 700,
+              fontSize: '16px',
+              color: '#ffffff',
+              flexShrink: 0
+            }}>
+              {user?.full_name?.charAt(0).toUpperCase()}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ margin: 0, fontWeight: 700, fontSize: '13px', color: '#000000' }}>{user?.full_name}</p>
+            </div>
           </div>
           <button
             onClick={() => {

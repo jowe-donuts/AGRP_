@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import '../styles/dashboard.css';
-import { Search, Plus, LogOut, Eye } from 'lucide-react';
+import { Search, Plus, LogOut, Eye, ArrowRight } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export default function StudentDashboard({ items = [], onReportNewItem, onOpenMatchModal }) {
@@ -36,64 +35,67 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
   };
 
   return (
-    <div className="dashboard">
+    <div style={{ backgroundColor: '#0d060b', color: '#ffffff', fontFamily: 'Cabinet Grotesk, -apple-system, sans-serif', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <header className="dashboard-header">
-        <h1>Campus Lost & Found</h1>
-        <div className="user-info">
-          <div className="user-avatar">{user?.full_name?.charAt(0).toUpperCase()}</div>
-          <div className="user-details">
-            <p>{user?.full_name}</p>
-            <p>{user?.email}</p>
+      <header style={{ backgroundColor: '#1b0e17', borderBottom: '1px solid #470c35', padding: '20px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
+        <div>
+          <h1 style={{ fontSize: '20px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.02em', margin: 0, marginBottom: '4px' }}>Campus Lost & Found</h1>
+          <p style={{ fontSize: '12px', color: '#9a8f97', margin: 0 }}>AI-powered recovery platform</p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#ff488b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '16px' }}>{user?.full_name?.charAt(0).toUpperCase()}</div>
+            <div style={{ fontSize: '13px' }}>
+              <div style={{ fontWeight: 700 }}>{user?.full_name}</div>
+              <div style={{ color: '#9a8f97', fontSize: '11px' }}>{user?.email}</div>
+            </div>
           </div>
           <button
-            className="btn btn-danger"
             onClick={() => {
               logout();
               window.location.reload();
             }}
+            style={{ background: '#ff488b', color: '#0d060b', border: 'none', padding: '10px 16px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'inherit' }}
             aria-label="Logout"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut style={{ width: '14px', height: '14px' }} />
             Logout
           </button>
         </div>
       </header>
 
-      <div className="dashboard-container">
-        {/* Sidebar */}
-        <nav className="dashboard-sidebar">
-          <ul className="sidebar-nav">
-            <li><a href="#feed" className="active">Items Feed</a></li>
-            <li><a href="#my-claims">My Claims</a></li>
-            <li><a href="#stats">Statistics</a></li>
-          </ul>
-        </nav>
+      {/* Main */}
+      <main style={{ flex: 1, padding: '40px 28px' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          {/* Title & CTA */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px' }}>
+            <div>
+              <h2 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800, letterSpacing: '-0.05em', lineHeight: 1.1, margin: 0, marginBottom: '8px', textTransform: 'lowercase' }}>your items</h2>
+              <p style={{ fontSize: '16px', color: '#9a8f97', margin: 0 }}>Track posts, view matches, and connect with finders</p>
+            </div>
+            <button
+              onClick={() => setShowReportModal(true)}
+              style={{ background: '#ff488b', color: '#0d060b', border: 'none', padding: '14px 28px', fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'inherit' }}
+            >
+              <Plus style={{ width: '18px', height: '18px' }} />
+              Post Item
+            </button>
+          </div>
 
-        {/* Main Content */}
-        <main className="dashboard-main">
           {/* Search & Filter */}
-          <div className="section-header" style={{ marginBottom: '20px' }}>
-            <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
-              <div style={{ flex: 1, display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <Search className="w-4 h-4" />
+          <div style={{ marginBottom: '32px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#1b0e17', border: '1px solid #470c35', borderRadius: '4px', padding: '12px 16px' }}>
+                <Search style={{ width: '16px', height: '16px', color: '#9a8f97' }} />
                 <input
                   type="search"
-                  name="search"
                   placeholder="Search items..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{ flex: 1 }}
                   autoComplete="off"
+                  style={{ flex: 1, background: 'none', border: 'none', color: '#ffffff', fontSize: '14px', outline: 'none', fontFamily: 'inherit' }}
                 />
               </div>
-              <button
-                className="btn btn-primary"
-                onClick={() => setShowReportModal(true)}
-              >
-                <Plus className="w-4 h-4" />
-                Report Item
-              </button>
             </div>
 
             {/* Categories */}
@@ -102,7 +104,19 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`btn ${selectedCategory === cat ? 'btn-primary' : 'btn-secondary'}`}
+                  style={{
+                    padding: '10px 16px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    borderRadius: '4px',
+                    border: selectedCategory === cat ? 'none' : '1px solid #470c35',
+                    background: selectedCategory === cat ? '#ff488b' : '#1b0e17',
+                    color: selectedCategory === cat ? '#0d060b' : '#ffffff',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    transition: 'all 0.2s'
+                  }}
                 >
                   {cat}
                 </button>
@@ -111,120 +125,186 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
           </div>
 
           {/* Items Grid */}
-          <section className="section">
-            <h2 style={{ fontSize: '24px', marginBottom: '20px' }}>
-              {selectedCategory === 'All' ? 'All Items' : selectedCategory}
-            </h2>
+          {filteredItems.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '80px 20px', backgroundColor: '#1b0e17', borderRadius: '4px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px', color: '#ffffff' }}>No items found</h3>
+              <p style={{ fontSize: '14px', color: '#9a8f97' }}>Try adjusting your search or post a new item to get started</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+              {filteredItems.map(item => (
+                <div
+                  key={item.id}
+                  style={{
+                    backgroundColor: '#1b0e17',
+                    border: '1px solid #470c35',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                    transition: 'all 0.2s',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#ff488b';
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#470c35';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  {/* Image */}
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      style={{ width: '100%', height: '160px', objectFit: 'cover', display: 'block' }}
+                      loading="lazy"
+                    />
+                  )}
 
-            {filteredItems.length === 0 ? (
-              <div className="empty-state">
-                <h3>No items found</h3>
-                <p>Try adjusting your search or category filters</p>
-              </div>
-            ) : (
-              <div className="grid grid-3">
-                {filteredItems.map(item => (
-                  <div key={item.id} className="card">
-                    {item.image && (
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="card-image"
-                        loading="lazy"
-                      />
-                    )}
-                    <div className="badge" style={{
-                      marginBottom: '12px'
-                    }}>
-                      <span className={`badge ${item.type === 'LOST' ? 'badge-lost' : 'badge-found'}`}>
+                  {/* Content */}
+                  <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    {/* Badge */}
+                    <div style={{ marginBottom: '12px' }}>
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '4px 10px',
+                        fontSize: '10px',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        borderRadius: '2px',
+                        backgroundColor: item.type === 'LOST' ? '#ff488b' : '#1b0e17',
+                        color: item.type === 'LOST' ? '#0d060b' : '#ff488b',
+                        border: item.type === 'FOUND' ? '1px solid #ff488b' : 'none'
+                      }}>
                         {item.type}
                       </span>
                     </div>
-                    <h3>{item.title}</h3>
-                    <p>{item.description}</p>
-                    <div className="card-meta">
-                      <span>📍 {item.location}</span>
-                      <span>📅 {item.date || 'Recently'}</span>
+
+                    {/* Title */}
+                    <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, marginBottom: '8px', color: '#ffffff' }}>{item.title}</h3>
+
+                    {/* Description */}
+                    <p style={{ fontSize: '13px', color: '#9a8f97', margin: 0, marginBottom: '12px', flex: 1, lineHeight: 1.5 }}>{item.description}</p>
+
+                    {/* Meta */}
+                    <div style={{ fontSize: '12px', color: '#9a8f97', marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div>📍 {item.location}</div>
+                      <div>📅 {item.date || 'Recently'}</div>
                     </div>
+
+                    {/* Match score if available */}
                     {item.matchScore && (
-                      <div className="badge badge-verified" style={{ marginTop: '12px' }}>
-                        {item.matchScore} Match
+                      <div style={{ padding: '8px 12px', backgroundColor: 'rgba(22, 163, 74, 0.1)', border: '1px solid #16a34a', borderRadius: '2px', color: '#16a34a', fontSize: '12px', fontWeight: 700, marginBottom: '12px', textAlign: 'center' }}>
+                        {item.matchScore} MATCH
                       </div>
                     )}
-                    <div className="card-footer">
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => onOpenMatchModal(item)}
-                        style={{ flex: 1 }}
-                      >
-                        <Eye className="w-4 h-4" />
-                        View & Claim
-                      </button>
-                    </div>
+
+                    {/* CTA */}
+                    <button
+                      onClick={() => onOpenMatchModal(item)}
+                      style={{ width: '100%', background: '#ff488b', color: '#0d060b', border: 'none', padding: '10px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontFamily: 'inherit' }}
+                    >
+                      <Eye style={{ width: '14px', height: '14px' }} />
+                      View & Claim
+                    </button>
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
-        </main>
-      </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
 
       {/* Report Modal */}
       {showReportModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h2>Report Lost / Found Item</h2>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, backgroundColor: 'rgba(0, 0, 0, 0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ backgroundColor: '#1b0e17', borderRadius: '4px', maxWidth: '500px', width: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(255, 72, 139, 0.2)', position: 'relative' }}>
+            {/* Header */}
+            <div style={{ padding: '20px', borderBottom: '1px solid #470c35', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 800, margin: 0, textTransform: 'uppercase', letterSpacing: '-0.02em' }}>Report Item</h2>
               <button
-                className="modal-close"
                 onClick={() => setShowReportModal(false)}
+                style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#9a8f97', fontFamily: 'inherit' }}
                 aria-label="Close modal"
               >
-                ✕
+                X
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="modal-body">
-              <div className="form-group">
-                <label>Item Type</label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+
+            {/* Body */}
+            <form onSubmit={handleSubmit} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* Item Type */}
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '10px', color: '#ffffff' }}>Item Type</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <button
                     type="button"
-                    className={`btn ${formData.type === 'LOST' ? 'btn-primary' : 'btn-secondary'}`}
                     onClick={() => setFormData({ ...formData, type: 'LOST' })}
+                    style={{
+                      padding: '12px',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      borderRadius: '4px',
+                      border: 'none',
+                      background: formData.type === 'LOST' ? '#ff488b' : '#0d060b',
+                      color: formData.type === 'LOST' ? '#0d060b' : '#ffffff',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      transition: 'all 0.2s'
+                    }}
                   >
                     Lost Item
                   </button>
                   <button
                     type="button"
-                    className={`btn ${formData.type === 'FOUND' ? 'btn-primary' : 'btn-secondary'}`}
                     onClick={() => setFormData({ ...formData, type: 'FOUND' })}
+                    style={{
+                      padding: '12px',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      borderRadius: '4px',
+                      border: 'none',
+                      background: formData.type === 'FOUND' ? '#ff488b' : '#0d060b',
+                      color: formData.type === 'FOUND' ? '#0d060b' : '#ffffff',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      transition: 'all 0.2s'
+                    }}
                   >
                     Found Item
                   </button>
                 </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="title">Item Title</label>
+              {/* Title */}
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', color: '#ffffff' }} htmlFor="title">Title</label>
                 <input
                   id="title"
                   type="text"
-                  name="title"
                   required
                   placeholder="e.g., Black iPhone 14 Pro"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #470c35', borderRadius: '4px', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#0d060b', color: '#ffffff' }}
                 />
               </div>
 
+              {/* Category & Location */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div className="form-group">
-                  <label htmlFor="category">Category</label>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', color: '#ffffff' }} htmlFor="category">Category</label>
                   <select
                     id="category"
-                    name="category"
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #470c35', borderRadius: '4px', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#0d060b', color: '#ffffff' }}
                   >
                     <option>Electronics</option>
                     <option>Wallets</option>
@@ -233,42 +313,46 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
                     <option>IDs & Cards</option>
                   </select>
                 </div>
-
-                <div className="form-group">
-                  <label htmlFor="location">Location</label>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', color: '#ffffff' }} htmlFor="location">Location</label>
                   <input
                     id="location"
                     type="text"
-                    name="location"
                     required
                     placeholder="e.g., Library, 3rd Floor"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #470c35', borderRadius: '4px', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#0d060b', color: '#ffffff' }}
                   />
                 </div>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="description">Description</label>
+              {/* Description */}
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', color: '#ffffff' }} htmlFor="description">Description</label>
                 <textarea
                   id="description"
-                  name="description"
                   placeholder="Color, brand, distinguishing features..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #470c35', borderRadius: '4px', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#0d060b', color: '#ffffff', minHeight: '80px', resize: 'vertical' }}
                 />
               </div>
 
-              <div className="modal-footer">
+              {/* Footer */}
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #470c35' }}>
                 <button
                   type="button"
-                  className="btn btn-secondary"
                   onClick={() => setShowReportModal(false)}
+                  style={{ padding: '10px 20px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', border: '1px solid #470c35', background: '#0d060b', color: '#ffffff', cursor: 'pointer', fontFamily: 'inherit' }}
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  <Plus className="w-4 h-4" />
+                <button
+                  type="submit"
+                  style={{ padding: '10px 20px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', border: 'none', background: '#ff488b', color: '#0d060b', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Plus style={{ width: '14px', height: '14px' }} />
                   Submit Report
                 </button>
               </div>

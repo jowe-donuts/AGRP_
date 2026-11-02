@@ -35,8 +35,23 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
   };
 
   return (
-    <div style={{ backgroundColor: '#ffffff', color: '#000000', fontFamily: 'Chivo, -apple-system, sans-serif', minHeight: '100vh', display: 'flex' }}>
-      {/* Sidebar */}
+    <div style={{ backgroundColor: '#ffffff', color: '#000000', fontFamily: 'Chivo, -apple-system, sans-serif', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Top Bar */}
+      <div style={{
+        backgroundColor: '#fe7141',
+        height: '60px',
+        display: 'flex',
+        alignItems: 'center',
+        paddingLeft: '28px',
+        paddingRight: '28px',
+        boxShadow: '0 2px 8px rgba(254, 113, 65, 0.15)'
+      }}>
+        <h1 style={{ fontSize: '18px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.02em', margin: 0, color: '#000000' }}>Ay, Gamit Ko 'To!</h1>
+      </div>
+
+      {/* Content area */}
+      <div style={{ display: 'flex', flex: 1 }}>
+        {/* Sidebar */}
       <aside style={{
         width: '280px',
         backgroundColor: '#f9fafb',
@@ -44,8 +59,7 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
         padding: '24px 0',
         display: 'flex',
         flexDirection: 'column',
-        position: 'fixed',
-        height: '100vh',
+        height: 'calc(100vh - 60px)',
         overflowY: 'auto'
       }}>
         {/* Logo/Title */}
@@ -305,6 +319,7 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
           )}
         </div>
       </main>
+      </div>
 
       {/* Report Modal */}
       {showReportModal && (

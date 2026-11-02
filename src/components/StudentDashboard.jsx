@@ -94,7 +94,7 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
         </nav>
 
         {/* Categories */}
-        <div style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '32px' }}>
+        <div style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '16px' }}>
           <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: '#9ca3af', marginBottom: '12px', paddingLeft: '8px', margin: '0 0 12px 0' }}>Categories</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {categories.map(cat => (
@@ -133,7 +133,7 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
         </div>
 
         {/* Search */}
-        <div style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '24px' }}>
+        <div style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#ffffff', borderRadius: '4px', padding: '10px 12px', border: '1px solid #e5e7eb' }}>
             <Search style={{ width: '14px', height: '14px', color: '#9ca3af' }} />
             <input
@@ -202,14 +202,29 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
       {/* Main Content */}
       <main style={{ marginLeft: '280px', flex: 1, padding: '32px' }}>
         <div style={{ maxWidth: '1000px' }}>
-          {/* Header */}
+          {/* Header with Search */}
           <div style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, letterSpacing: '-0.05em', margin: 0, marginBottom: '8px', textTransform: 'uppercase' }}>
-              {selectedCategory === 'All' ? 'All Items' : selectedCategory}
-            </h2>
-            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
-              {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''} found
-            </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', gap: '20px' }}>
+              <div>
+                <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, letterSpacing: '-0.05em', margin: 0, marginBottom: '8px', textTransform: 'uppercase' }}>
+                  {selectedCategory === 'All' ? 'All Items' : selectedCategory}
+                </h2>
+                <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
+                  {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''} found
+                </p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#ffffff', borderRadius: '4px', padding: '10px 12px', border: '1px solid #e5e7eb', minWidth: '250px' }}>
+                <Search style={{ width: '14px', height: '14px', color: '#9ca3af' }} />
+                <input
+                  type="search"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoComplete="off"
+                  style={{ flex: 1, background: 'none', border: 'none', color: '#000000', fontSize: '13px', outline: 'none', fontFamily: 'inherit' }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Items Grid - Small Containers */}

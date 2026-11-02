@@ -36,9 +36,42 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
 
   return (
     <div style={{ backgroundColor: '#ffffff', color: '#000000', fontFamily: 'Chivo, -apple-system, sans-serif', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <header style={{ backgroundColor: '#ffffff', borderBottom: '1px solid #e5e7eb', padding: '20px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
-        <h1 style={{ fontSize: '20px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '-0.02em', margin: 0 }}>Campus Lost & Found</h1>
+      {/* Dark Header */}
+      <header style={{
+        backgroundColor: '#1b0e17',
+        borderBottom: '1px solid #470c35',
+        padding: '16px 28px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* Avatar */}
+          <div style={{
+            width: '44px',
+            height: '44px',
+            borderRadius: '50%',
+            backgroundColor: '#9333ea',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 700,
+            fontSize: '18px',
+            color: '#ffffff'
+          }}>
+            {user?.full_name?.charAt(0).toUpperCase()}
+          </div>
+          {/* User Info */}
+          <div>
+            <p style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff', margin: '0 0 2px 0' }}>{user?.full_name}</p>
+            <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>{user?.email}</p>
+          </div>
+        </div>
+
+        {/* Logout Button */}
         <button
           onClick={() => {
             logout();
@@ -46,23 +79,29 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
           }}
           style={{
             background: 'none',
-            border: 'none',
+            border: '1px solid #dc2626',
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            fontSize: '14px',
+            fontSize: '12px',
             fontWeight: 700,
             textTransform: 'uppercase',
             cursor: 'pointer',
             color: '#dc2626',
             fontFamily: 'inherit',
-            transition: 'opacity 0.2s'
+            padding: '8px 12px',
+            borderRadius: '4px',
+            transition: 'all 0.2s'
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(220, 38, 38, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
           aria-label="Logout"
         >
-          <LogOut style={{ width: '16px', height: '16px' }} />
+          <LogOut style={{ width: '14px', height: '14px' }} />
           Logout
         </button>
       </header>

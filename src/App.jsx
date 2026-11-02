@@ -312,45 +312,6 @@ export default function App() {
 
   return (
     <div className="w-full">
-      {/* Header with User Info & Logout */}
-      <div className="bg-slate-900/50 backdrop-blur-xl border-b border-slate-800/50 px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white font-semibold">
-            {user?.full_name?.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <p className="text-white font-semibold">{user?.full_name}</p>
-            <p className="text-slate-400 text-sm">{user?.email}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4">
-          {/* Role Selector (for demo, only for staff/admin) */}
-          {(user?.role === 'staff' || user?.role === 'admin') && (
-            <select
-              value={currentRole}
-              onChange={(e) => setCurrentRole(e.target.value)}
-              className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm"
-            >
-              <option value="student">Student View</option>
-              <option value="admin">Admin View</option>
-            </select>
-          )}
-
-          <button
-            onClick={() => {
-              logout();
-              window.location.reload();
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg font-semibold transition"
-            aria-label="Logout"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </button>
-        </div>
-      </div>
-
       {/* Error Message */}
       {error && (
         <div className="mx-6 mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400">

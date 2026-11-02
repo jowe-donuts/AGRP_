@@ -46,8 +46,7 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
         padding: '24px 0',
         display: 'flex',
         flexDirection: 'column',
-        height: 'calc(100vh - 68px)',
-        overflowY: 'auto'
+        height: 'calc(100vh - 68px)'
       }}>
         {/* Logo/Title */}
         <div style={{ paddingLeft: '24px', paddingRight: '24px', marginBottom: '32px' }}>

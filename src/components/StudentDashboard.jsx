@@ -38,8 +38,8 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
     <div style={{ backgroundColor: '#ffffff', color: '#000000', fontFamily: 'Chivo, -apple-system, sans-serif', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Dark Header */}
       <header style={{
-        backgroundColor: '#1b0e17',
-        borderBottom: '1px solid #470c35',
+        backgroundColor: '#fe7141',
+        borderBottom: '1px solid #fe7141',
         padding: '16px 28px',
         display: 'flex',
         justifyContent: 'space-between',
@@ -54,20 +54,20 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
             width: '44px',
             height: '44px',
             borderRadius: '50%',
-            backgroundColor: '#9333ea',
+            backgroundColor: '#000000',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: 700,
             fontSize: '18px',
-            color: '#ffffff'
+            color: '#fe7141'
           }}>
             {user?.full_name?.charAt(0).toUpperCase()}
           </div>
           {/* User Info */}
           <div>
-            <p style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff', margin: '0 0 2px 0' }}>{user?.full_name}</p>
-            <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>{user?.email}</p>
+            <p style={{ fontSize: '14px', fontWeight: 700, color: '#000000', margin: '0 0 2px 0' }}>{user?.full_name}</p>
+            <p style={{ fontSize: '12px', color: '#5f5f5f', margin: 0 }}>{user?.email}</p>
           </div>
         </div>
 
@@ -78,8 +78,8 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
             window.location.reload();
           }}
           style={{
-            background: 'none',
-            border: '1px solid #dc2626',
+            background: '#000000',
+            border: '1px solid #000000',
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
@@ -87,17 +87,17 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
             fontWeight: 700,
             textTransform: 'uppercase',
             cursor: 'pointer',
-            color: '#dc2626',
+            color: '#fe7141',
             fontFamily: 'inherit',
             padding: '8px 12px',
             borderRadius: '4px',
             transition: 'all 0.2s'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(220, 38, 38, 0.1)';
+            e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.backgroundColor = '#000000';
           }}
           aria-label="Logout"
         >

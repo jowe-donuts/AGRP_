@@ -36,18 +36,36 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
 
   return (
     <div style={{ backgroundColor: '#ffffff', color: '#000000', fontFamily: 'Chivo, -apple-system, sans-serif', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Top Bar */}
-      <div style={{
-        backgroundColor: '#fe7141',
-        height: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        paddingLeft: '28px',
-        paddingRight: '28px',
-        boxShadow: '0 2px 8px rgba(254, 113, 65, 0.15)'
-      }}>
-        <h1 style={{ fontSize: '18px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.02em', margin: 0, color: '#000000' }}>Ay, Gamit Ko 'To!</h1>
-      </div>
+      {/* Header */}
+      <header style={{ backgroundColor: '#ffffff', borderBottom: '1px solid #e5e7eb', padding: '20px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
+        <h1 style={{ fontSize: '20px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '-0.02em', margin: 0 }}>Campus Lost & Found</h1>
+        <button
+          onClick={() => {
+            logout();
+            window.location.reload();
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '14px',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            color: '#dc2626',
+            fontFamily: 'inherit',
+            transition: 'opacity 0.2s'
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+          aria-label="Logout"
+        >
+          <LogOut style={{ width: '16px', height: '16px' }} />
+          Logout
+        </button>
+      </header>
 
       {/* Content area */}
       <div style={{ display: 'flex', flex: 1 }}>
@@ -59,7 +77,7 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
         padding: '24px 0',
         display: 'flex',
         flexDirection: 'column',
-        height: 'calc(100vh - 60px)',
+        height: 'calc(100vh - 68px)',
         overflowY: 'auto'
       }}>
         {/* Logo/Title */}

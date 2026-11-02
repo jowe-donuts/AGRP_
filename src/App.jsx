@@ -55,10 +55,12 @@ function LoginPage({ onLoginSuccess }) {
               <label className="block text-sm font-medium text-slate-300 mb-2">Full Name</label>
               <input
                 type="text"
+                name={isRegister ? "fullName" : undefined}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="John Doe"
                 required={isRegister}
+                autoComplete={isRegister ? "name" : undefined}
                 className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
               />
             </div>
@@ -68,10 +70,12 @@ function LoginPage({ onLoginSuccess }) {
             <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
             <input
               type="email"
+              name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="student@campus.edu"
               required
+              autoComplete="email"
               className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
           </div>
@@ -80,10 +84,13 @@ function LoginPage({ onLoginSuccess }) {
             <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
             <input
               type="password"
+              name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
+              autoComplete="current-password"
+              spellCheck={false}
               className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
           </div>
@@ -101,7 +108,7 @@ function LoginPage({ onLoginSuccess }) {
           >
             {loading ? (
               <>
-                <Loader className="w-4 h-4 animate-spin" />
+                <Loader className="w-4 h-4 animate-spin" aria-label="Loading" />
                 {isRegister ? 'Creating Account...' : 'Logging in...'}
               </>
             ) : (
@@ -315,6 +322,7 @@ export default function App() {
               window.location.reload();
             }}
             className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg font-semibold transition"
+            aria-label="Logout"
           >
             <LogOut className="w-4 h-4" />
             Logout

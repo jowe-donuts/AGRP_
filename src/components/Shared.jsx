@@ -25,8 +25,8 @@ export function MatchModal({ item, onClose, onSubmitClaim }) {
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 relative shadow-2xl">
-        <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800/50">
-          <X className="w-5 h-5" />
+        <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800/50" aria-label="Close modal">
+          <X className="w-5 h-5" aria-hidden="true" />
         </button>
 
         {!submitted ? (

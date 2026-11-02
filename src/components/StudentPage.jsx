@@ -148,13 +148,15 @@ export default function StudentPage({ items, onReportNewItem, onOpenMatchModal, 
           </div>
 
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
-            <input 
-              type="text" 
-              placeholder="Search items, keywords, or buildings..." 
+            <Search className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" aria-hidden="true" />
+            <input
+              type="search"
+              name="search"
+              placeholder="Search items, keywords, or buildings..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-900/80 border border-slate-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-violet-500/80 focus:ring-2 focus:ring-violet-500/20 transition backdrop-blur-md shadow-inner"
+              autoComplete="off"
+              className="w-full bg-slate-900/80 border border-slate-800 rounded-2xl pl-11 pr-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:border-violet-500/80 focus:ring-2 focus:ring-violet-500/20 transition backdrop-blur-md shadow-inner"
             />
           </div>
         </div>
@@ -281,23 +283,26 @@ export default function StudentPage({ items, onReportNewItem, onOpenMatchModal, 
 
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Item Title / Name</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
+                  name="title"
                   required
                   placeholder="e.g., Apple AirPods Pro with Case"
                   value={itemTitle}
                   onChange={(e) => setItemTitle(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-violet-500 transition shadow-inner"
+                  autoComplete="off"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition shadow-inner"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Category</label>
-                  <select 
-                    value={category} 
+                  <select
+                    name="category"
+                    value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-violet-500 transition shadow-inner"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition shadow-inner"
                   >
                     <option>Electronics</option>
                     <option>Wallets</option>
@@ -308,36 +313,41 @@ export default function StudentPage({ items, onReportNewItem, onOpenMatchModal, 
                 </div>
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Date</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="date"
+                    name="date"
                     placeholder="e.g., Oct 26, 2026"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-violet-500 transition shadow-inner"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition shadow-inner"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Campus Location</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
+                  name="location"
                   required
                   placeholder="e.g., 2nd Floor Hallway, CS Building"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-violet-500 transition shadow-inner"
+                  autoComplete="street-address"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition shadow-inner"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Description</label>
-                <textarea 
+                <textarea
+                  name="description"
                   rows={3}
                   placeholder="Provide color, brand, distinct scratches, or contents..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-violet-500 transition shadow-inner"
+                  autoComplete="off"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-200 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition shadow-inner"
                 />
               </div>
 

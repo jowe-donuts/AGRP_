@@ -170,27 +170,148 @@ export default function App() {
     setError('');
     try {
       const result = await api.items.list({ size: 50 });
-      setItems(Array.isArray(result) ? result : []);
+      setItems(Array.isArray(result) ? result : getDummyItems());
     } catch (err) {
       console.error('Failed to load items:', err);
       setError('Failed to load items');
       // Use demo data as fallback
-      setItems([
-        {
-          id: 1,
-          title: 'MacBook Air M2 (Space Gray)',
-          category: 'Electronics',
-          location: 'CS Library 3rd Floor',
-          date: 'Today, 10:15 AM',
-          status: 'lost',
-          image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80',
-          description: 'Found on study desk near power outlet',
-        },
-      ]);
+      setItems(getDummyItems());
     } finally {
       setItemsLoading(false);
     }
   };
+
+  // Dummy data for display
+  const getDummyItems = () => [
+    {
+      id: 1,
+      type: 'LOST',
+      title: 'Black iPhone 14 Pro',
+      category: 'Electronics',
+      location: 'Library, 3rd Floor',
+      date: 'Oct 28',
+      image: 'https://picsum.photos/id/669/400/500?grayscale',
+      matchScore: '92%',
+      description: 'Black iPhone 14 Pro with cracked screen protector'
+    },
+    {
+      id: 2,
+      type: 'FOUND',
+      title: 'Sony WH-1000XM5 Headphones',
+      category: 'Electronics',
+      location: 'Student Center',
+      date: 'Oct 27',
+      image: 'https://picsum.photos/id/177/400/500?grayscale',
+      matchScore: '78%',
+      description: 'Black Sony noise-cancelling headphones'
+    },
+    {
+      id: 3,
+      type: 'LOST',
+      title: 'Blue Kanken Backpack',
+      category: 'Bags',
+      location: 'CS Building',
+      date: 'Oct 26',
+      image: 'https://picsum.photos/id/338/400/500?grayscale',
+      description: 'Navy blue Kanken backpack with laptop'
+    },
+    {
+      id: 4,
+      type: 'FOUND',
+      title: 'Samsung Galaxy Watch 5',
+      category: 'Electronics',
+      location: 'Gym',
+      date: 'Oct 25',
+      image: 'https://picsum.photos/id/685/400/500?grayscale',
+      matchScore: '85%',
+      description: 'Silver Samsung Galaxy Watch 5 with strap'
+    },
+    {
+      id: 5,
+      type: 'LOST',
+      title: 'Gold Class Ring',
+      category: 'IDs & Cards',
+      location: 'Science Building',
+      date: 'Oct 24',
+      image: 'https://picsum.photos/id/550/400/500?grayscale',
+      description: 'Gold class ring with initials inside'
+    },
+    {
+      id: 6,
+      type: 'FOUND',
+      title: 'Apple AirPods Pro (2nd Gen)',
+      category: 'Electronics',
+      location: 'Dorm',
+      date: 'Oct 23',
+      image: 'https://picsum.photos/id/665/400/500?grayscale',
+      matchScore: '91%',
+      description: 'White AirPods Pro in charging case'
+    },
+    {
+      id: 7,
+      type: 'LOST',
+      title: 'Brown Leather Wallet',
+      category: 'Wallets',
+      location: 'Dining Hall',
+      date: 'Oct 22',
+      image: 'https://picsum.photos/id/445/400/500?grayscale',
+      description: 'Brown leather wallet with ID and cards'
+    },
+    {
+      id: 8,
+      type: 'FOUND',
+      title: 'Silver House Keys',
+      category: 'Keys',
+      location: 'Library Entrance',
+      date: 'Oct 21',
+      image: 'https://picsum.photos/id/315/400/500?grayscale',
+      matchScore: '67%',
+      description: 'Set of 3 silver keys on blue keychain'
+    },
+    {
+      id: 9,
+      type: 'LOST',
+      title: 'Dell XPS 13 Laptop',
+      category: 'Electronics',
+      location: 'Coffee Shop',
+      date: 'Oct 20',
+      image: 'https://picsum.photos/id/88/400/500?grayscale',
+      matchScore: '88%',
+      description: 'Silver Dell XPS 13 with stickers'
+    },
+    {
+      id: 10,
+      type: 'FOUND',
+      title: 'Red Backpack',
+      category: 'Bags',
+      location: 'Bus Stop',
+      date: 'Oct 19',
+      image: 'https://picsum.photos/id/236/400/500?grayscale',
+      description: 'Bright red backpack with hiking gear'
+    },
+    {
+      id: 11,
+      type: 'LOST',
+      title: 'Student ID Card',
+      category: 'IDs & Cards',
+      location: 'Main Campus',
+      date: 'Oct 18',
+      image: 'https://picsum.photos/id/407/400/500?grayscale',
+      matchScore: '95%',
+      description: 'Blue student ID with photo'
+    },
+    {
+      id: 12,
+      type: 'FOUND',
+      title: 'AirTag',
+      category: 'Electronics',
+      location: 'Parking Lot',
+      date: 'Oct 17',
+      image: 'https://picsum.photos/id/544/400/500?grayscale',
+      matchScore: '72%',
+      description: 'White Apple AirTag with leather holder'
+    }
+  ];
 
   // Load claims from backend
   const loadClaims = async () => {

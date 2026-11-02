@@ -79,8 +79,8 @@ export default function RedesignedLanding() {
 
         <div className="hero-content">
           <h1 className="hero-headline">
-            <span className="hero-headline-top">Find Your</span>
-            <span className="hero-headline-bottom">Stuff</span>
+            <span className="hero-headline-line-1">Find Your</span>
+            <span className="hero-headline-line-2">Stuff</span>
           </h1>
           <p className="hero-supporting">
             AI-powered visual matching brings lost campus belongings home in hours, not weeks.

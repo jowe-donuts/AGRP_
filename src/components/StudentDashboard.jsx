@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, LogOut, Eye, Home, Package, Settings } from 'lucide-react';
+import { Search, Plus, LogOut, Eye, Home, Package } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export default function StudentDashboard({ items = [], onReportNewItem, onOpenMatchModal }) {
@@ -35,311 +35,157 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
   };
 
   return (
-    <div style={{ backgroundColor: '#ffffff', color: '#000000', fontFamily: 'Chivo, -apple-system, sans-serif', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Dark Header */}
-      <header style={{
-        backgroundColor: '#1b0e17',
-        borderBottom: '1px solid #470c35',
-        padding: '16px 28px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {/* Avatar */}
-          <div style={{
-            width: '44px',
-            height: '44px',
-            borderRadius: '50%',
-            backgroundColor: '#9333ea',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: '18px',
-            color: '#ffffff'
-          }}>
+    <div className="w-full">
+      {/* Header with User Info & Logout */}
+      <div className="bg-slate-900/50 backdrop-blur-xl border-b border-slate-800/50 px-6 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white font-semibold">
             {user?.full_name?.charAt(0).toUpperCase()}
           </div>
-          {/* User Info */}
           <div>
-            <p style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff', margin: '0 0 2px 0' }}>{user?.full_name}</p>
-            <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>{user?.email}</p>
+            <p className="text-white font-semibold">{user?.full_name}</p>
+            <p className="text-slate-400 text-sm">{user?.email}</p>
           </div>
         </div>
 
-        {/* Logout Button */}
         <button
           onClick={() => {
             logout();
             window.location.reload();
           }}
-          style={{
-            background: 'none',
-            border: '1px solid #dc2626',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontSize: '12px',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-            color: '#dc2626',
-            fontFamily: 'inherit',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            transition: 'all 0.2s'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'rgba(220, 38, 38, 0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-          }}
+          className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition-all"
           aria-label="Logout"
         >
-          <LogOut style={{ width: '14px', height: '14px' }} />
+          <LogOut className="w-4 h-4" />
           Logout
         </button>
-      </header>
-
-      {/* Content area */}
-      <div style={{ display: 'flex', flex: 1 }}>
-        {/* Sidebar */}
-      <aside style={{
-        width: '280px',
-        backgroundColor: '#f9fafb',
-        borderRight: '1px solid #e5e7eb',
-        padding: '24px 0',
-        display: 'flex',
-        flexDirection: 'column',
-        height: 'calc(100vh - 68px)',
-        overflowY: 'auto'
-      }}>
-        {/* Logo/Title */}
-        <div style={{ paddingLeft: '24px', paddingRight: '24px', marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '16px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.02em', margin: 0, marginBottom: '4px' }}>Gamit</h1>
-          <p style={{ fontSize: '11px', color: '#9ca3af', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Lost & Found</p>
-        </div>
-
-        {/* Report Button */}
-        <button
-          onClick={() => setShowReportModal(true)}
-          style={{
-            marginLeft: '12px',
-            marginRight: '12px',
-            marginBottom: '24px',
-            background: '#fe7141',
-            color: '#000000',
-            border: 'none',
-            padding: '12px 16px',
-            fontSize: '13px',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px',
-            fontFamily: 'inherit'
-          }}
-        >
-          <Plus style={{ width: '16px', height: '16px' }} />
-          New Post
-        </button>
-
-        {/* Navigation */}
-        <nav style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <a href="#" style={{ padding: '10px 12px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', backgroundColor: '#fe7141', color: '#000000', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'inherit' }}>
-            <Home style={{ width: '16px', height: '16px' }} />
-            Feed
-          </a>
-          <a href="#" style={{ padding: '10px 12px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', color: '#6b7280', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'inherit' }}>
-            <Package style={{ width: '16px', height: '16px' }} />
-            My Posts
-          </a>
-        </nav>
-
-        {/* Categories */}
-        <div style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '32px' }}>
-          <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: '#9ca3af', marginBottom: '12px', paddingLeft: '8px', margin: '0 0 12px 0' }}>Categories</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                style={{
-                  padding: '10px 12px',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  borderRadius: '4px',
-                  border: 'none',
-                  background: selectedCategory === cat ? '#fe7141' : 'transparent',
-                  color: selectedCategory === cat ? '#000000' : '#6b7280',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  transition: 'all 0.2s',
-                  textAlign: 'left'
-                }}
-                onMouseEnter={(e) => {
-                  if (selectedCategory !== cat) {
-                    e.currentTarget.style.backgroundColor = '#f0f0f0';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (selectedCategory !== cat) {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }
-                }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Search */}
-        <div style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '32px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#ffffff', borderRadius: '4px', padding: '10px 12px', border: '1px solid #e5e7eb' }}>
-            <Search style={{ width: '14px', height: '14px', color: '#9ca3af' }} />
-            <input
-              type="search"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              autoComplete="off"
-              style={{ flex: 1, background: 'none', border: 'none', color: '#000000', fontSize: '13px', outline: 'none', fontFamily: 'inherit' }}
-            />
-          </div>
-        </div>
-
-        {/* User & Logout */}
-        <div style={{ marginTop: 'auto', paddingLeft: '12px', paddingRight: '12px', borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
-          <div style={{ fontSize: '12px', marginBottom: '12px', color: '#6b7280' }}>
-            <p style={{ margin: '0 0 2px 0', fontWeight: 700 }}>{user?.full_name}</p>
-            <p style={{ margin: 0, fontSize: '11px' }}>{user?.email}</p>
-          </div>
-          <button
-            onClick={() => {
-              logout();
-              window.location.reload();
-            }}
-            style={{
-              width: '100%',
-              background: '#f3f4f6',
-              border: '1px solid #d1d5db',
-              color: '#dc2626',
-              padding: '10px 12px',
-              fontSize: '12px',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              fontFamily: 'inherit'
-            }}
-            aria-label="Logout"
-          >
-            <LogOut style={{ width: '14px', height: '14px' }} />
-            Logout
-          </button>
-        </div>
-      </aside>
+      </div>
 
       {/* Main Content */}
-      <main style={{ marginLeft: '280px', flex: 1, padding: '32px' }}>
-        <div style={{ maxWidth: '1000px' }}>
-          {/* Header */}
-          <div style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, letterSpacing: '-0.05em', margin: 0, marginBottom: '8px', textTransform: 'uppercase' }}>
-              {selectedCategory === 'All' ? 'All Items' : selectedCategory}
-            </h2>
-            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
-              {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''} found
-            </p>
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className="w-64 bg-slate-900 border-r border-slate-800 p-6 min-h-screen">
+          {/* Logo */}
+          <div className="mb-8">
+            <h2 className="text-white text-lg font-bold uppercase">Gamit</h2>
+            <p className="text-slate-400 text-xs uppercase tracking-wider">Lost & Found</p>
           </div>
 
-          {/* Items Grid - Small Containers */}
+          {/* New Post Button */}
+          <button
+            onClick={() => setShowReportModal(true)}
+            className="w-full bg-violet-600 hover:bg-violet-700 text-white py-2 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 mb-6 transition-all"
+          >
+            <Plus className="w-4 h-4" />
+            New Post
+          </button>
+
+          {/* Navigation */}
+          <nav className="space-y-2 mb-8">
+            <a href="#" className="block px-4 py-2 bg-violet-600 text-white rounded-lg font-semibold text-sm flex items-center gap-2">
+              <Home className="w-4 h-4" />
+              Feed
+            </a>
+            <a href="#" className="block px-4 py-2 text-slate-400 hover:text-white rounded-lg font-semibold text-sm flex items-center gap-2 transition-colors">
+              <Package className="w-4 h-4" />
+              My Posts
+            </a>
+          </nav>
+
+          {/* Categories */}
+          <div className="mb-8">
+            <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold mb-3">Categories</p>
+            <div className="space-y-2">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`block w-full text-left px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+                    selectedCategory === cat
+                      ? 'bg-violet-600 text-white'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2">
+              <Search className="w-4 h-4 text-slate-400" />
+              <input
+                type="search"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoComplete="off"
+                className="flex-1 bg-transparent text-white placeholder-slate-400 outline-none text-sm"
+              />
+            </div>
+          </div>
+        </aside>
+
+        {/* Main Content Area */}
+        <main className="flex-1 p-8 bg-slate-950">
+          {/* Title */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-white uppercase tracking-tight mb-2">
+              {selectedCategory === 'All' ? 'All Items' : selectedCategory}
+            </h1>
+            <p className="text-slate-400">{filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''} found</p>
+          </div>
+
+          {/* Items Grid */}
           {filteredItems.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 20px', backgroundColor: '#f9fafb', borderRadius: '4px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '8px', color: '#000000' }}>No items found</h3>
-              <p style={{ fontSize: '13px', color: '#6b7280' }}>Try a different category or search term</p>
+            <div className="text-center py-16 bg-slate-900 rounded-lg border border-slate-800">
+              <h3 className="text-white font-semibold mb-2">No items found</h3>
+              <p className="text-slate-400 text-sm">Try a different category or search term</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredItems.map(item => (
                 <div
                   key={item.id}
-                  style={{
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '4px',
-                    overflow: 'hidden',
-                    transition: 'all 0.2s',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#fe7141';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(254, 113, 65, 0.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#e5e7eb';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
+                  className="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden hover:border-violet-500 transition-all cursor-pointer group"
                 >
                   {/* Image */}
                   {item.image && (
                     <img
                       src={item.image}
                       alt={item.title}
-                      style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }}
+                      className="w-full h-32 object-cover group-hover:opacity-80 transition-opacity"
                       loading="lazy"
                     />
                   )}
 
                   {/* Content */}
-                  <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <div className="p-3">
                     {/* Badge */}
                     {item.type && (
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '3px 8px',
-                        fontSize: '9px',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        borderRadius: '2px',
-                        backgroundColor: item.type === 'LOST' ? 'rgba(220, 38, 38, 0.1)' : 'rgba(22, 163, 74, 0.1)',
-                        color: item.type === 'LOST' ? '#dc2626' : '#16a34a',
-                        marginBottom: '8px',
-                        width: 'fit-content'
-                      }}>
+                      <span className={`inline-block px-2 py-1 rounded text-xs font-bold mb-2 ${
+                        item.type === 'LOST'
+                          ? 'bg-red-500/20 text-red-400'
+                          : 'bg-green-500/20 text-green-400'
+                      }`}>
                         {item.type}
                       </span>
                     )}
 
                     {/* Title */}
-                    <h3 style={{ fontSize: '13px', fontWeight: 700, margin: 0, marginBottom: '4px', color: '#000000', lineHeight: 1.3 }}>{item.title}</h3>
+                    <h3 className="text-white font-bold text-sm mb-1 line-clamp-2">{item.title}</h3>
 
                     {/* Location */}
-                    <p style={{ fontSize: '11px', color: '#6b7280', margin: 0, marginBottom: '6px' }}>📍 {item.location}</p>
+                    <p className="text-slate-400 text-xs mb-1">📍 {item.location}</p>
 
                     {/* Date */}
-                    <p style={{ fontSize: '11px', color: '#6b7280', margin: 0, marginBottom: '8px' }}>📅 {item.date || 'Recently'}</p>
+                    <p className="text-slate-400 text-xs mb-3">📅 {item.date || 'Recently'}</p>
 
-                    {/* Match score if available */}
+                    {/* Match score */}
                     {item.matchScore && (
-                      <div style={{ padding: '4px 6px', backgroundColor: 'rgba(22, 163, 74, 0.1)', borderRadius: '2px', color: '#16a34a', fontSize: '10px', fontWeight: 700, marginBottom: '8px', textAlign: 'center' }}>
+                      <div className="bg-green-500/20 text-green-400 text-xs font-bold py-1 px-2 rounded text-center mb-3">
                         {item.matchScore} MATCH
                       </div>
                     )}
@@ -347,26 +193,9 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
                     {/* CTA */}
                     <button
                       onClick={() => onOpenMatchModal(item)}
-                      style={{
-                        width: '100%',
-                        background: '#fe7141',
-                        color: '#000000',
-                        border: 'none',
-                        padding: '8px',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '4px',
-                        fontFamily: 'inherit',
-                        marginTop: 'auto'
-                      }}
+                      className="w-full bg-violet-600 hover:bg-violet-700 text-white py-2 rounded font-bold text-xs flex items-center justify-center gap-1 transition-all"
                     >
-                      <Eye style={{ width: '12px', height: '12px' }} />
+                      <Eye className="w-3 h-3" />
                       View
                     </button>
                   </div>
@@ -374,96 +203,77 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
               ))}
             </div>
           )}
-        </div>
-      </main>
+        </main>
       </div>
 
       {/* Report Modal */}
       {showReportModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ backgroundColor: '#ffffff', borderRadius: '4px', maxWidth: '500px', width: '100%', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 25px rgba(0, 0, 0, 0.15)', position: 'relative' }}>
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 rounded-lg max-w-md w-full p-6 border border-slate-800 shadow-xl">
             {/* Header */}
-            <div style={{ padding: '20px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>Report Item</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-white uppercase">Report Item</h2>
               <button
                 onClick={() => setShowReportModal(false)}
-                style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#9ca3af', fontFamily: 'inherit' }}
+                className="text-slate-400 hover:text-white text-2xl"
                 aria-label="Close modal"
               >
                 ✕
               </button>
             </div>
 
-            {/* Body */}
-            <form onSubmit={handleSubmit} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Item Type */}
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '10px', color: '#000000' }}>Item Type</label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <label className="block text-slate-300 text-sm font-semibold mb-2 uppercase">Item Type</label>
+                <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, type: 'LOST' })}
-                    style={{
-                      padding: '12px',
-                      fontSize: '13px',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      borderRadius: '4px',
-                      border: formData.type === 'LOST' ? 'none' : '1px solid #d1d5db',
-                      background: formData.type === 'LOST' ? '#fe7141' : '#ffffff',
-                      color: formData.type === 'LOST' ? '#000000' : '#000000',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                      transition: 'all 0.2s'
-                    }}
+                    className={`py-2 px-3 rounded font-semibold text-sm transition-all ${
+                      formData.type === 'LOST'
+                        ? 'bg-red-600 text-white'
+                        : 'bg-slate-800 text-slate-400 hover:text-white'
+                    }`}
                   >
-                    Lost Item
+                    Lost
                   </button>
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, type: 'FOUND' })}
-                    style={{
-                      padding: '12px',
-                      fontSize: '13px',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      borderRadius: '4px',
-                      border: formData.type === 'FOUND' ? 'none' : '1px solid #d1d5db',
-                      background: formData.type === 'FOUND' ? '#fe7141' : '#ffffff',
-                      color: formData.type === 'FOUND' ? '#000000' : '#000000',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                      transition: 'all 0.2s'
-                    }}
+                    className={`py-2 px-3 rounded font-semibold text-sm transition-all ${
+                      formData.type === 'FOUND'
+                        ? 'bg-green-600 text-white'
+                        : 'bg-slate-800 text-slate-400 hover:text-white'
+                    }`}
                   >
-                    Found Item
+                    Found
                   </button>
                 </div>
               </div>
 
               {/* Title */}
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', color: '#000000' }} htmlFor="title">Title</label>
+                <label className="block text-slate-300 text-sm font-semibold mb-2 uppercase">Title</label>
                 <input
-                  id="title"
                   type="text"
                   required
                   placeholder="e.g., Black iPhone 14 Pro"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#ffffff', color: '#000000' }}
+                  className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500"
                 />
               </div>
 
               {/* Category & Location */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', color: '#000000' }} htmlFor="category">Category</label>
+                  <label className="block text-slate-300 text-sm font-semibold mb-2 uppercase">Category</label>
                   <select
-                    id="category"
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#ffffff', color: '#000000' }}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-white focus:outline-none focus:border-violet-500"
                   >
                     <option>Electronics</option>
                     <option>Wallets</option>
@@ -473,46 +283,44 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', color: '#000000' }} htmlFor="location">Location</label>
+                  <label className="block text-slate-300 text-sm font-semibold mb-2 uppercase">Location</label>
                   <input
-                    id="location"
                     type="text"
                     required
                     placeholder="e.g., Library, 3rd Floor"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#ffffff', color: '#000000' }}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500"
                   />
                 </div>
               </div>
 
               {/* Description */}
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', color: '#000000' }} htmlFor="description">Description</label>
+                <label className="block text-slate-300 text-sm font-semibold mb-2 uppercase">Description</label>
                 <textarea
-                  id="description"
                   placeholder="Color, brand, distinguishing features..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#ffffff', color: '#000000', minHeight: '80px', resize: 'vertical' }}
+                  className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 min-h-20 resize-none"
                 />
               </div>
 
               {/* Footer */}
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
+              <div className="flex gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowReportModal(false)}
-                  style={{ padding: '10px 20px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', border: '1px solid #d1d5db', background: '#ffffff', color: '#000000', cursor: 'pointer', fontFamily: 'inherit' }}
+                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-2 rounded font-semibold text-sm transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  style={{ padding: '10px 20px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', border: 'none', background: '#fe7141', color: '#000000', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px' }}
+                  className="flex-1 bg-violet-600 hover:bg-violet-700 text-white py-2 rounded font-semibold text-sm flex items-center justify-center gap-1 transition-all"
                 >
-                  <Plus style={{ width: '14px', height: '14px' }} />
-                  Submit Report
+                  <Plus className="w-4 h-4" />
+                  Submit
                 </button>
               </div>
             </form>

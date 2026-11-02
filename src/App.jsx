@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import StudentPage from './components/StudentPage';
 import AdminPage from './components/AdminPage';
+import RedesignedLanding from './components/RedesignedLanding';
 import { MatchModal, AssistantDrawer, AiPhotoMatchModal } from './components/Shared';
 import { Shield, User, Sparkles, Camera, LogOut, Loader } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
@@ -274,7 +275,7 @@ export default function App() {
     }
   };
 
-  // Show login screen if not authenticated
+  // Show redesigned landing if not authenticated
   if (!isAuthenticated || authLoading) {
     if (authLoading) {
       return (
@@ -286,7 +287,7 @@ export default function App() {
         </div>
       );
     }
-    return <LoginPage onLoginSuccess={() => {}} />;
+    return <RedesignedLanding />;
   }
 
   return (

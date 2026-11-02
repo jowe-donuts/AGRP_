@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import '../styles/redesign.css';
-import { X, Loader } from 'lucide-react';
+import { X, Loader, Search, Plus } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export default function RedesignedLanding() {
-  const [activeStage, setActiveStage] = useState(0);
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,198 +38,442 @@ export default function RedesignedLanding() {
     }
   };
 
-  const stages = [
+  const sampleItems = [
     {
-      name: 'Report',
-      description: 'Post lost or found items with photos and location details. Our AI analyzes the image instantly.'
+      id: 1,
+      type: 'LOST',
+      title: 'Black iPhone 14 Pro',
+      location: 'Library, 3rd Floor',
+      date: 'Oct 28, 2026',
+      image: 'https://picsum.photos/id/669/400/300?grayscale',
+      matchScore: '92%'
     },
     {
-      name: 'Scan',
-      description: 'The system scans for matches across the entire campus database using visual and spatial embeddings.'
+      id: 2,
+      type: 'FOUND',
+      title: 'Sony WH-1000XM5 Headphones',
+      location: 'Student Center Cafeteria',
+      date: 'Oct 27, 2026',
+      image: 'https://picsum.photos/id/177/400/300?grayscale',
+      matchScore: null
     },
     {
-      name: 'Verify',
-      description: 'Answer a secret question to prove ownership. Staff reviews and approves claims within hours.'
+      id: 3,
+      type: 'LOST',
+      title: 'Blue Fjallraven Kanken Backpack',
+      location: 'CS Building Parking',
+      date: 'Oct 26, 2026',
+      image: 'https://picsum.photos/id/338/400/300?grayscale',
+      matchScore: null
     },
     {
-      name: 'Claim',
-      description: 'Pick up your item at the campus office with your ID. Items held for 60 days.'
+      id: 4,
+      type: 'FOUND',
+      title: 'Samsung Galaxy Watch 5',
+      location: 'Gym Locker Room',
+      date: 'Oct 25, 2026',
+      image: 'https://picsum.photos/id/685/400/300?grayscale',
+      matchScore: null
+    },
+    {
+      id: 5,
+      type: 'LOST',
+      title: 'Gold Class Ring w/ Initials',
+      location: 'Science Building',
+      date: 'Oct 24, 2026',
+      image: 'https://picsum.photos/id/550/400/300?grayscale',
+      matchScore: '87%'
+    },
+    {
+      id: 6,
+      type: 'FOUND',
+      title: 'AirPods Pro (White)',
+      location: 'Dormitory Hallway',
+      date: 'Oct 23, 2026',
+      image: 'https://picsum.photos/id/665/400/300?grayscale',
+      matchScore: null
     }
   ];
 
   return (
-    <div className="redesigned-landing">
-      {/* Hero: Waterline headline */}
-      <section className="hero">
-        <div className="hero-header">
-          <div className="hero-wordmark">Ay, Gamit Ko 'To!</div>
-          <button 
-            className="hero-action"
-            onClick={() => {
-              setShowModal(true);
-              setIsRegister(false);
-              setError('');
+    <div style={{ backgroundColor: '#ffffff' }}>
+      {/* Hero */}
+      <section style={{
+        backgroundColor: 'linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)',
+        padding: '80px 28px',
+        textAlign: 'center',
+        borderBottom: '1px solid #e5e7eb'
+      }}>
+        <h1 style={{
+          fontSize: 'clamp(40px, 8vw, 56px)',
+          fontWeight: 900,
+          textTransform: 'uppercase',
+          letterSpacing: '-0.05em',
+          marginBottom: '16px',
+          fontFamily: 'Chivo, sans-serif',
+          color: '#000000'
+        }}>
+          Ay, Gamit Ko 'To!
+        </h1>
+        <p style={{
+          fontSize: '18px',
+          color: '#6b7280',
+          marginBottom: '32px',
+          maxWidth: '600px',
+          margin: '0 auto 32px'
+        }}>
+          Find your lost belongings on campus with AI-powered visual matching. Connect with your community in seconds.
+        </p>
+        <button
+          onClick={() => {
+            setShowModal(true);
+            setIsRegister(false);
+            setError('');
+          }}
+          style={{
+            background: '#fe7141',
+            color: '#000000',
+            border: 'none',
+            padding: '14px 32px',
+            fontSize: '16px',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontFamily: 'Chivo, sans-serif'
+          }}
+        >
+          <Plus style={{ display: 'inline', width: '16px', height: '16px', marginRight: '8px' }} />
+          Start Now
+        </button>
+      </section>
+
+      {/* Search Bar */}
+      <section style={{
+        padding: '40px 28px',
+        backgroundColor: '#f9fafb',
+        borderBottom: '1px solid #e5e7eb'
+      }}>
+        <div style={{
+          maxWidth: '600px',
+          margin: '0 auto',
+          display: 'flex',
+          gap: '8px'
+        }}>
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            backgroundColor: '#ffffff',
+            border: '1px solid #d1d5db',
+            borderRadius: '4px',
+            padding: '12px'
+          }}>
+            <Search style={{ width: '16px', height: '16px', color: '#9ca3af' }} />
+            <input
+              type="search"
+              placeholder="Search lost items..."
+              style={{
+                flex: 1,
+                border: 'none',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                outline: 'none'
+              }}
+            />
+          </div>
+          <button
+            style={{
+              background: '#fe7141',
+              color: '#000000',
+              border: 'none',
+              padding: '12px 24px',
+              fontSize: '14px',
+              fontWeight: 700,
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontFamily: 'Chivo, sans-serif'
             }}
-            aria-label="Login to your account"
           >
-            Login
+            SEARCH
           </button>
         </div>
-
-        <div className="hero-content">
-          <h1 className="hero-headline">
-            <span className="hero-headline-line-1">Find Your</span>
-            <span className="hero-headline-line-2">Stuff</span>
-          </h1>
-          <p className="hero-supporting">
-            AI-powered visual matching brings lost campus belongings home in hours, not weeks.
-          </p>
-        </div>
       </section>
 
-      {/* Chapter 1: Features */}
-      <section className="chapter chapter-1">
-        <div className="chapter-grid">
-          <div className="chapter-col-3">
-            <h2>Smart Matching</h2>
-            <p>Post once. Our CLIP model finds matches across campus instantly using visual embeddings and location data.</p>
-          </div>
-          <div className="chapter-col-9">
-            <div className="tiles">
-              <div className="tile" style={{ backgroundColor: '#d1ddd3' }}>
-                <img src="https://picsum.photos/id/669/600/750?grayscale" alt="Camera capturing item details" loading="lazy" width="600" height="750" />
-              </div>
-              <div className="tile" style={{ backgroundColor: '#f0ff1c' }}>
-                <img src="https://picsum.photos/id/177/800/500?grayscale" alt="AI processing visual match" loading="lazy" width="800" height="500" />
-              </div>
-              <div className="tile" style={{ backgroundColor: '#000000' }}>
-                <img src="https://picsum.photos/id/338/600/750?grayscale" alt="Map showing item location" loading="lazy" width="600" height="750" />
-              </div>
-              <div className="tile" style={{ backgroundColor: '#d1ddd3' }}>
-                <img src="https://picsum.photos/id/685/800/500?grayscale" alt="Verification process" loading="lazy" width="800" height="500" />
-              </div>
-              <div className="tile" style={{ backgroundColor: '#f0ff1c' }}>
-                <img src="https://picsum.photos/id/550/600/750?grayscale" alt="Successful item recovery" loading="lazy" width="600" height="750" />
-              </div>
-            </div>
-            <div className="tile-label">Instant visual embeddings</div>
-            <div className="tile-fact">92% match accuracy on first scan</div>
-          </div>
-        </div>
-      </section>
+      {/* Items Grid */}
+      <section style={{
+        padding: '60px 28px',
+        maxWidth: '1200px',
+        margin: '0 auto'
+      }}>
+        <h2 style={{
+          fontSize: 'clamp(28px, 4vw, 36px)',
+          fontWeight: 900,
+          textTransform: 'uppercase',
+          letterSpacing: '-0.05em',
+          marginBottom: '40px',
+          fontFamily: 'Chivo, sans-serif',
+          color: '#000000'
+        }}>
+          Recent Posts
+        </h2>
 
-      {/* Chapter 2: How It Works */}
-      <section className="chapter chapter-2">
-        <div className="chapter-grid">
-          <div className="chapter-col-3">
-            <h2>How It Works</h2>
-            <p>Four simple steps from lost to found. The system runs in the background while staff handles verification.</p>
-          </div>
-        </div>
-
-        <div className="accordion">
-          {stages.map((stage, index) => (
-            <div
-              key={index}
-              className={`accordion-stage ${activeStage === index ? 'active' : ''}`}
-              onClick={() => setActiveStage(index)}
-              role="tab"
-              aria-selected={activeStage === index}
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setActiveStage(index);
-                }
-              }}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: '20px'
+        }}>
+          {sampleItems.map(item => (
+            <div key={item.id} style={{
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
+              overflow: 'hidden',
+              transition: 'all 0.2s',
+              backgroundColor: '#ffffff',
+              cursor: 'pointer',
+              ':hover': {
+                borderColor: '#fe7141',
+                boxShadow: '0 4px 12px rgba(254, 113, 65, 0.1)'
+              }
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#fe7141';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(254, 113, 65, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#e5e7eb';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
             >
-              <span className="accordion-stage-name">{stage.name}</span>
-              {activeStage === index && (
-                <div className="accordion-content">
-                  <h3>{stage.name}</h3>
-                  <p>{stage.description}</p>
+              {/* Image */}
+              <img
+                src={item.image}
+                alt={item.title}
+                style={{
+                  width: '100%',
+                  height: '180px',
+                  objectFit: 'cover',
+                  display: 'block'
+                }}
+                loading="lazy"
+              />
+
+              {/* Content */}
+              <div style={{ padding: '16px' }}>
+                {/* Type Badge */}
+                <div style={{
+                  display: 'inline-block',
+                  padding: '4px 12px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  borderRadius: '2px',
+                  marginBottom: '12px',
+                  backgroundColor: item.type === 'LOST' ? 'rgba(220, 38, 38, 0.1)' : 'rgba(22, 163, 74, 0.1)',
+                  color: item.type === 'LOST' ? '#dc2626' : '#16a34a'
+                }}>
+                  {item.type}
                 </div>
-              )}
+
+                {/* Match Score */}
+                {item.matchScore && (
+                  <div style={{
+                    display: 'inline-block',
+                    marginLeft: '8px',
+                    padding: '4px 12px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    backgroundColor: 'rgba(254, 113, 65, 0.1)',
+                    color: '#fe7141',
+                    borderRadius: '2px'
+                  }}>
+                    {item.matchScore} MATCH
+                  </div>
+                )}
+
+                {/* Title */}
+                <h3 style={{
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  marginBottom: '8px',
+                  color: '#000000',
+                  fontFamily: 'Chivo, sans-serif'
+                }}>
+                  {item.title}
+                </h3>
+
+                {/* Meta */}
+                <div style={{
+                  fontSize: '13px',
+                  color: '#6b7280',
+                  marginBottom: '12px',
+                  lineHeight: '1.5'
+                }}>
+                  <div>📍 {item.location}</div>
+                  <div>📅 {item.date}</div>
+                </div>
+
+                {/* Action Button */}
+                <button
+                  style={{
+                    width: '100%',
+                    background: '#fe7141',
+                    color: '#000000',
+                    border: 'none',
+                    padding: '10px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontFamily: 'Chivo, sans-serif'
+                  }}
+                >
+                  View Details
+                </button>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Chapter 3: Stats */}
-      <section className="chapter chapter-3">
-        <h2>By The Numbers</h2>
-        <div className="mosaic">
-          <div className="mosaic-photo">
-            <img 
-              src="https://picsum.photos/id/665/1200/1200?grayscale" 
-              alt="Campus recovery center" 
-              loading="lazy"
-              width="1200"
-              height="1200"
-            />
+      {/* Stats */}
+      <section style={{
+        backgroundColor: '#f9fafb',
+        padding: '60px 28px',
+        borderTop: '1px solid #e5e7eb',
+        borderBottom: '1px solid #e5e7eb'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '40px',
+          textAlign: 'center'
+        }}>
+          <div>
+            <div style={{
+              fontSize: 'clamp(32px, 5vw, 48px)',
+              fontWeight: 900,
+              color: '#fe7141',
+              fontFamily: 'Chivo, sans-serif'
+            }}>
+              3.2K
+            </div>
+            <div style={{
+              fontSize: '14px',
+              color: '#6b7280',
+              marginTop: '8px'
+            }}>
+              Items Recovered
+            </div>
           </div>
-          <div className="mosaic-tile" style={{ backgroundColor: '#fe7141', color: '#000000' }}>
-            <div className="mosaic-figure">3.2K</div>
-            <div className="mosaic-caption">Items recovered this year</div>
+          <div>
+            <div style={{
+              fontSize: 'clamp(32px, 5vw, 48px)',
+              fontWeight: 900,
+              color: '#fe7141',
+              fontFamily: 'Chivo, sans-serif'
+            }}>
+              89%
+            </div>
+            <div style={{
+              fontSize: '14px',
+              color: '#6b7280',
+              marginTop: '8px'
+            }}>
+              Returned Successfully
+            </div>
           </div>
-          <div className="mosaic-tile" style={{ backgroundColor: '#000000', color: '#f4f4f4' }}>
-            <div className="mosaic-figure">89%</div>
-            <div className="mosaic-caption">Claimed within 24 hours</div>
+          <div>
+            <div style={{
+              fontSize: 'clamp(32px, 5vw, 48px)',
+              fontWeight: 900,
+              color: '#fe7141',
+              fontFamily: 'Chivo, sans-serif'
+            }}>
+              8.4K
+            </div>
+            <div style={{
+              fontSize: '14px',
+              color: '#6b7280',
+              marginTop: '8px'
+            }}>
+              Campus Members
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Chapter 4: CTA */}
-      <section className="chapter chapter-4">
-        <h2>Start Searching Today</h2>
-        <div className="cta-footer">
-          <p className="cta-sentence">
-            Join 8,400 campus members already recovering lost items. Create an account in seconds.
-          </p>
-          <button 
-            className="cta-button"
-            onClick={() => {
-              setShowModal(true);
-              setIsRegister(true);
-              setError('');
-            }}
-            aria-label="Create a new account"
-          >
-            Sign Up
-          </button>
-        </div>
+      {/* CTA */}
+      <section style={{
+        backgroundColor: '#000000',
+        color: '#ffffff',
+        padding: '60px 28px',
+        textAlign: 'center'
+      }}>
+        <h2 style={{
+          fontSize: 'clamp(32px, 5vw, 44px)',
+          fontWeight: 900,
+          textTransform: 'uppercase',
+          letterSpacing: '-0.05em',
+          marginBottom: '24px',
+          fontFamily: 'Chivo, sans-serif'
+        }}>
+          Lost Something?
+        </h2>
+        <p style={{
+          fontSize: '16px',
+          marginBottom: '32px',
+          maxWidth: '500px',
+          margin: '0 auto 32px',
+          color: '#d1d5db'
+        }}>
+          Post it now and let our AI help you find it. Thousands of campus members are ready to help.
+        </p>
+        <button
+          onClick={() => {
+            setShowModal(true);
+            setIsRegister(true);
+            setError('');
+          }}
+          style={{
+            background: '#fe7141',
+            color: '#000000',
+            border: 'none',
+            padding: '14px 40px',
+            fontSize: '16px',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontFamily: 'Chivo, sans-serif'
+          }}
+        >
+          Create Account
+        </button>
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="wordmark-blocks">
-          {'AYGA'.split('').map((letter, i) => (
-            <div key={i} className="wordmark-block">{letter}</div>
-          ))}
-        </div>
-
-        <div className="footer-links">
-          <a href="#features">Features</a>
-          <a href="#how-it-works">How It Works</a>
-          <a href="#about">About</a>
-          <a href="#contact">Contact</a>
-        </div>
-
-        <div className="footer-bottom">
-          <span>&copy; 2026 Ay, Gamit Ko 'To! All rights reserved.</span>
-          <button 
-            className="cta-button"
-            onClick={() => {
-              setShowModal(true);
-              setIsRegister(false);
-              setError('');
-            }}
-            style={{ width: 'auto' }}
-            aria-label="Login to account"
-          >
-            Login
-          </button>
-        </div>
+      <footer style={{
+        backgroundColor: '#f9fafb',
+        borderTop: '1px solid #e5e7eb',
+        padding: '40px 28px',
+        textAlign: 'center',
+        fontSize: '14px',
+        color: '#6b7280'
+      }}>
+        <p style={{ marginBottom: '16px' }}>
+          <strong style={{ color: '#000000' }}>Ay, Gamit Ko 'To!</strong> • Campus Lost & Found Platform
+        </p>
+        <p>
+          &copy; 2026 All rights reserved. • 
+          <a href="#" style={{ color: '#fe7141', textDecoration: 'none', marginLeft: '8px' }}>Privacy</a> •
+          <a href="#" style={{ color: '#fe7141', textDecoration: 'none', marginLeft: '8px' }}>Terms</a> •
+          <a href="#" style={{ color: '#fe7141', textDecoration: 'none', marginLeft: '8px' }}>Contact</a>
+        </p>
       </footer>
 
       {/* Auth Modal */}
@@ -458,4 +701,3 @@ export default function RedesignedLanding() {
     </div>
   );
 }
-

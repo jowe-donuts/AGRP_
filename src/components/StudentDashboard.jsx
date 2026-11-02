@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, LogOut, Eye } from 'lucide-react';
+import { Search, Plus, LogOut, Eye, Home, Package, Settings } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export default function StudentDashboard({ items = [], onReportNewItem, onOpenMatchModal }) {
@@ -35,120 +35,175 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
   };
 
   return (
-    <div style={{ backgroundColor: '#ffffff', color: '#000000', fontFamily: 'Chivo, -apple-system, sans-serif', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <header style={{ backgroundColor: '#ffffff', borderBottom: '1px solid #e5e7eb', padding: '20px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
-        <h1 style={{ fontSize: '20px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '-0.02em', margin: 0 }}>Campus Lost & Found</h1>
+    <div style={{ backgroundColor: '#ffffff', color: '#000000', fontFamily: 'Chivo, -apple-system, sans-serif', minHeight: '100vh', display: 'flex' }}>
+      {/* Sidebar */}
+      <aside style={{
+        width: '280px',
+        backgroundColor: '#f9fafb',
+        borderRight: '1px solid #e5e7eb',
+        padding: '24px 0',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'fixed',
+        height: '100vh',
+        overflowY: 'auto'
+      }}>
+        {/* Logo/Title */}
+        <div style={{ paddingLeft: '24px', paddingRight: '24px', marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '16px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.02em', margin: 0, marginBottom: '4px' }}>Gamit</h1>
+          <p style={{ fontSize: '11px', color: '#9ca3af', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Lost & Found</p>
+        </div>
+
+        {/* Report Button */}
         <button
-          onClick={() => {
-            logout();
-            window.location.reload();
-          }}
+          onClick={() => setShowReportModal(true)}
           style={{
-            background: 'none',
+            marginLeft: '12px',
+            marginRight: '12px',
+            marginBottom: '24px',
+            background: '#fe7141',
+            color: '#000000',
             border: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontSize: '14px',
+            padding: '12px 16px',
+            fontSize: '13px',
             fontWeight: 700,
             textTransform: 'uppercase',
+            borderRadius: '4px',
             cursor: 'pointer',
-            color: '#dc2626',
-            fontFamily: 'inherit',
-            transition: 'opacity 0.2s'
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+            fontFamily: 'inherit'
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.7'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-          aria-label="Logout"
         >
-          <LogOut style={{ width: '16px', height: '16px' }} />
-          Logout
+          <Plus style={{ width: '16px', height: '16px' }} />
+          New Post
         </button>
-      </header>
 
-      {/* Main */}
-      <main style={{ flex: 1, padding: '40px 28px' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          {/* Title & CTA */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px' }}>
-            <div>
-              <h2 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 900, letterSpacing: '-0.05em', lineHeight: 1.1, margin: 0, marginBottom: '8px', textTransform: 'uppercase' }}>Items</h2>
-              <p style={{ fontSize: '16px', color: '#6b7280', margin: 0 }}>Search, filter, and connect with others</p>
-            </div>
-            <button
-              onClick={() => setShowReportModal(true)}
-              style={{
-                background: '#fe7141',
-                color: '#000000',
-                border: 'none',
-                padding: '14px 28px',
-                fontSize: '14px',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontFamily: 'inherit'
-              }}
-            >
-              <Plus style={{ width: '18px', height: '18px' }} />
-              Report Item
-            </button>
+        {/* Navigation */}
+        <nav style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <a href="#" style={{ padding: '10px 12px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', backgroundColor: '#fe7141', color: '#000000', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'inherit' }}>
+            <Home style={{ width: '16px', height: '16px' }} />
+            Feed
+          </a>
+          <a href="#" style={{ padding: '10px 12px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', color: '#6b7280', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'inherit' }}>
+            <Package style={{ width: '16px', height: '16px' }} />
+            My Posts
+          </a>
+        </nav>
+
+        {/* Categories */}
+        <div style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '32px' }}>
+          <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: '#9ca3af', marginBottom: '12px', paddingLeft: '8px', margin: '0 0 12px 0' }}>Categories</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                style={{
+                  padding: '10px 12px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  borderRadius: '4px',
+                  border: 'none',
+                  background: selectedCategory === cat ? '#fe7141' : 'transparent',
+                  color: selectedCategory === cat ? '#000000' : '#6b7280',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.2s',
+                  textAlign: 'left'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedCategory !== cat) {
+                    e.currentTarget.style.backgroundColor = '#f0f0f0';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedCategory !== cat) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
+        </div>
 
-          {/* Search & Filter */}
+        {/* Search */}
+        <div style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#ffffff', borderRadius: '4px', padding: '10px 12px', border: '1px solid #e5e7eb' }}>
+            <Search style={{ width: '14px', height: '14px', color: '#9ca3af' }} />
+            <input
+              type="search"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoComplete="off"
+              style={{ flex: 1, background: 'none', border: 'none', color: '#000000', fontSize: '13px', outline: 'none', fontFamily: 'inherit' }}
+            />
+          </div>
+        </div>
+
+        {/* User & Logout */}
+        <div style={{ marginTop: 'auto', paddingLeft: '12px', paddingRight: '12px', borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
+          <div style={{ fontSize: '12px', marginBottom: '12px', color: '#6b7280' }}>
+            <p style={{ margin: '0 0 2px 0', fontWeight: 700 }}>{user?.full_name}</p>
+            <p style={{ margin: 0, fontSize: '11px' }}>{user?.email}</p>
+          </div>
+          <button
+            onClick={() => {
+              logout();
+              window.location.reload();
+            }}
+            style={{
+              width: '100%',
+              background: '#f3f4f6',
+              border: '1px solid #d1d5db',
+              color: '#dc2626',
+              padding: '10px 12px',
+              fontSize: '12px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              fontFamily: 'inherit'
+            }}
+            aria-label="Logout"
+          >
+            <LogOut style={{ width: '14px', height: '14px' }} />
+            Logout
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main style={{ marginLeft: '280px', flex: 1, padding: '32px' }}>
+        <div style={{ maxWidth: '1000px' }}>
+          {/* Header */}
           <div style={{ marginBottom: '32px' }}>
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#f3f4f6', borderRadius: '4px', padding: '12px 16px' }}>
-                <Search style={{ width: '16px', height: '16px', color: '#9ca3af' }} />
-                <input
-                  type="search"
-                  placeholder="Search items..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  autoComplete="off"
-                  style={{ flex: 1, background: 'none', border: 'none', color: '#000000', fontSize: '14px', outline: 'none', fontFamily: 'inherit' }}
-                />
-              </div>
-            </div>
-
-            {/* Categories */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {categories.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  style={{
-                    padding: '10px 16px',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    borderRadius: '4px',
-                    border: selectedCategory === cat ? 'none' : '1px solid #d1d5db',
-                    background: selectedCategory === cat ? '#fe7141' : '#ffffff',
-                    color: selectedCategory === cat ? '#000000' : '#000000',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
+            <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, letterSpacing: '-0.05em', margin: 0, marginBottom: '8px', textTransform: 'uppercase' }}>
+              {selectedCategory === 'All' ? 'All Items' : selectedCategory}
+            </h2>
+            <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
+              {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''} found
+            </p>
           </div>
 
-          {/* Items Grid */}
+          {/* Items Grid - Small Containers */}
           {filteredItems.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '80px 20px', backgroundColor: '#f9fafb', borderRadius: '4px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px', color: '#000000' }}>No items found</h3>
-              <p style={{ fontSize: '14px', color: '#6b7280' }}>Try adjusting your search or post a new item</p>
+            <div style={{ textAlign: 'center', padding: '60px 20px', backgroundColor: '#f9fafb', borderRadius: '4px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '8px', color: '#000000' }}>No items found</h3>
+              <p style={{ fontSize: '13px', color: '#6b7280' }}>Try a different category or search term</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
               {filteredItems.map(item => (
                 <div
                   key={item.id}
@@ -177,44 +232,43 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
                     <img
                       src={item.image}
                       alt={item.title}
-                      style={{ width: '100%', height: '160px', objectFit: 'cover', display: 'block' }}
+                      style={{ width: '100%', height: '120px', objectFit: 'cover', display: 'block' }}
                       loading="lazy"
                     />
                   )}
 
                   {/* Content */}
-                  <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ padding: '12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                     {/* Badge */}
-                    <div style={{ marginBottom: '12px' }}>
+                    {item.type && (
                       <span style={{
                         display: 'inline-block',
-                        padding: '4px 10px',
-                        fontSize: '10px',
+                        padding: '3px 8px',
+                        fontSize: '9px',
                         fontWeight: 700,
                         textTransform: 'uppercase',
                         borderRadius: '2px',
                         backgroundColor: item.type === 'LOST' ? 'rgba(220, 38, 38, 0.1)' : 'rgba(22, 163, 74, 0.1)',
-                        color: item.type === 'LOST' ? '#dc2626' : '#16a34a'
+                        color: item.type === 'LOST' ? '#dc2626' : '#16a34a',
+                        marginBottom: '8px',
+                        width: 'fit-content'
                       }}>
                         {item.type}
                       </span>
-                    </div>
+                    )}
 
                     {/* Title */}
-                    <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0, marginBottom: '8px', color: '#000000' }}>{item.title}</h3>
+                    <h3 style={{ fontSize: '13px', fontWeight: 700, margin: 0, marginBottom: '4px', color: '#000000', lineHeight: 1.3 }}>{item.title}</h3>
 
-                    {/* Description */}
-                    <p style={{ fontSize: '13px', color: '#6b7280', margin: 0, marginBottom: '12px', flex: 1, lineHeight: 1.5 }}>{item.description}</p>
+                    {/* Location */}
+                    <p style={{ fontSize: '11px', color: '#6b7280', margin: 0, marginBottom: '6px' }}>📍 {item.location}</p>
 
-                    {/* Meta */}
-                    <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <div>📍 {item.location}</div>
-                      <div>📅 {item.date || 'Recently'}</div>
-                    </div>
+                    {/* Date */}
+                    <p style={{ fontSize: '11px', color: '#6b7280', margin: 0, marginBottom: '8px' }}>📅 {item.date || 'Recently'}</p>
 
                     {/* Match score if available */}
                     {item.matchScore && (
-                      <div style={{ padding: '8px 12px', backgroundColor: 'rgba(22, 163, 74, 0.1)', border: '1px solid #d1d5db', borderRadius: '2px', color: '#16a34a', fontSize: '12px', fontWeight: 700, marginBottom: '12px', textAlign: 'center' }}>
+                      <div style={{ padding: '4px 6px', backgroundColor: 'rgba(22, 163, 74, 0.1)', borderRadius: '2px', color: '#16a34a', fontSize: '10px', fontWeight: 700, marginBottom: '8px', textAlign: 'center' }}>
                         {item.matchScore} MATCH
                       </div>
                     )}
@@ -227,8 +281,8 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
                         background: '#fe7141',
                         color: '#000000',
                         border: 'none',
-                        padding: '10px',
-                        fontSize: '12px',
+                        padding: '8px',
+                        fontSize: '11px',
                         fontWeight: 700,
                         textTransform: 'uppercase',
                         borderRadius: '4px',
@@ -236,12 +290,13 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '6px',
-                        fontFamily: 'inherit'
+                        gap: '4px',
+                        fontFamily: 'inherit',
+                        marginTop: 'auto'
                       }}
                     >
-                      <Eye style={{ width: '14px', height: '14px' }} />
-                      View Details
+                      <Eye style={{ width: '12px', height: '12px' }} />
+                      View
                     </button>
                   </div>
                 </div>

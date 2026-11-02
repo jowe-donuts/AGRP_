@@ -52,7 +52,7 @@ export default function RedesignedLanding() {
       {/* Navigation */}
       <nav style={{ position: 'fixed', top: '20px', left: 0, right: 0, zIndex: 100, padding: '0 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ fontSize: '18px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.035em' }}>Gamit</div>
-        <button onClick={() => openModal(false)} style={{ background: '#ff488b', color: '#0d060b', border: 'none', padding: '10px 20px', fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit' }}>Login</button>
+        <button onClick={() => openModal(false)} aria-label="Open login modal" style={{ background: '#ff488b', color: '#0d060b', border: 'none', padding: '10px 20px', fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit' }}>Login</button>
       </nav>
 
       {/* HERO */}
@@ -113,7 +113,7 @@ export default function RedesignedLanding() {
           <div style={{ textAlign: 'center' }}>3.2k items recovered</div>
           <div style={{ textAlign: 'right' }}>8.4k members</div>
         </div>
-        <div style={{ textAlign: 'center', fontSize: '12px', paddingTop: '40px', borderTop: '1px solid #470c35' }}><p>&copy; 2026 Ay, Gamit Ko To!</p></div>
+        <div style={{ textAlign: 'center', fontSize: '12px', paddingTop: '40px', borderTop: '1px solid #470c35' }}><p>&copy; 2026 Ay, Gamit Ko To…</p></div>
       </footer>
 
       {/* Auth Modal */}
@@ -144,7 +144,7 @@ export default function RedesignedLanding() {
               </button>
             </form>
             <div style={{ marginTop: '24px', textAlign: 'center' }}>
-              <p style={{ fontSize: '13px', color: '#9a8f97' }}>{isRegister ? 'Already member?' : 'New here?'}{' '}<button onClick={() => { setIsRegister(!isRegister); setError(''); }} style={{ background: 'none', border: 'none', color: '#ff488b', fontWeight: 700, cursor: 'pointer', fontSize: '13px', textTransform: 'uppercase', fontFamily: 'inherit' }}>{isRegister ? 'Login' : 'Register'}</button></p>
+              <p style={{ fontSize: '13px', color: '#9a8f97' }}>{isRegister ? 'Already member?' : 'New here?'}{' '}<button onClick={() => { setIsRegister(!isRegister); setError(''); }} aria-label={isRegister ? 'Switch to login' : 'Switch to register'} style={{ background: 'none', border: 'none', color: '#ff488b', fontWeight: 700, cursor: 'pointer', fontSize: '13px', textTransform: 'uppercase', fontFamily: 'inherit' }}>{isRegister ? 'Login' : 'Register'}</button></p>
             </div>
             <div style={{ marginTop: '24px', padding: '12px', backgroundColor: 'rgba(71, 12, 53, 0.3)', border: '1px solid #470c35', borderRadius: '4px' }}>
               <p style={{ fontSize: '11px', color: '#9a8f97', margin: 0 }}><strong style={{ color: '#ff488b' }}>Demo:</strong> testuser@example.com / testpassword123</p>

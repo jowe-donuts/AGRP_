@@ -41,13 +41,14 @@ class Settings(BaseSettings):
     cloud_storage_secret_key: str = Field(default="", validation_alias="CLOUD_STORAGE_SECRET_KEY")
 
     # Celery configuration
-    # For production, use Redis as broker and result backend
+    # For local development without Docker/Redis, use in-memory broker
+    # For production, use: redis://localhost:6379/0
     celery_broker_url: str = Field(
-        default="redis://localhost:6379/0",
+        default="memory://",
         validation_alias="CELERY_BROKER_URL",
     )
     celery_result_backend: str = Field(
-        default="redis://localhost:6379/1",
+        default="cache+memory://",
         validation_alias="CELERY_RESULT_BACKEND",
     )
 

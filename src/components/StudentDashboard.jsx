@@ -24,14 +24,67 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
     return matchesCategory && matchesSearch;
   });
 
-  const handleSubmit = (e) => {
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [formError, setFormError] = useState('');
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onReportNewItem({
-      ...formData,
-      id: `REP-${Date.now().toString().slice(-4)}`
-    });
-    setShowReportModal(false);
-    setFormData({ type: 'LOST', title: '', category: 'Electronics', location: '', description: '' });
+    setFormSubmitting(true);
+    setFormError('');
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setFormError('Not authenticated. Please log in again.');
+        setFormSubmitting(false);
+        return;
+      }
+
+      // Determine endpoint based on type
+      const endpoint = formData.type === 'LOST' ? '/api/items/lost' : '/api/items/found';
+
+      // Create FormData for multipart request
+      const formPayload = new FormData();
+      formPayload.append('title', formData.title);
+      formPayload.append('description', formData.description);
+      formPayload.append('category', formData.category);
+      formPayload.append('location', formData.location);
+
+      const response = await fetch(`http://localhost:8000${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formPayload
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to report item');
+      }
+
+      const newItem = await response.json();
+
+      // Call parent callback
+      if (onReportNewItem) {
+        onReportNewItem({
+          id: newItem.id,
+          title: newItem.title,
+          type: formData.type,
+          category: formData.category,
+          location: formData.location,
+          description: formData.description,
+          date: new Date().toLocaleDateString()
+        });
+      }
+
+      setShowReportModal(false);
+      setFormData({ type: 'LOST', title: '', category: 'Electronics', location: '', description: '' });
+    } catch (err) {
+      setFormError(err.message || 'Failed to report item. Please try again.');
+    } finally {
+      setFormSubmitting(false);
+    }
   };
 
   return (
@@ -358,6 +411,13 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
 
             {/* Body */}
             <form onSubmit={handleSubmit} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* Error Message */}
+              {formError && (
+                <div style={{ padding: '12px', backgroundColor: 'rgba(220, 38, 38, 0.1)', borderRadius: '4px', color: '#dc2626', fontSize: '13px', border: '1px solid rgba(220, 38, 38, 0.3)' }}>
+                  {formError}
+                </div>
+              )}
+              
               {/* Item Type */}
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '10px', color: '#000000' }}>Item Type</label>

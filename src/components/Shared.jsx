@@ -4,29 +4,68 @@ import { Sparkles, X, Send, Bot, CheckCircle, Camera, Upload, ArrowRight, Shield
 export function MatchModal({ item, onClose, onSubmitClaim }) {
   const [secretAnswer, setSecretAnswer] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   if (!item) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmitClaim({
-      id: `CLM-${Date.now().toString().slice(-4)}`,
-      studentName: 'Maria Santos',
-      studentId: 'STU-2024-1092',
-      itemId: item.id,
-      itemTitle: item.title,
-      secretAnswer,
-      confidence: item.matchScore || '92%',
-      status: 'Pending'
-    });
-    setSubmitted(true);
+    setLoading(true);
+    setError('');
+
+    try {
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Not authenticated. Please log in again.');
+        setLoading(false);
+        return;
+      }
+
+      // Submit claim to backend API
+      const response = await fetch('http://localhost:8000/api/claims/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          item_id: item.id
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to submit claim');
+      }
+
+      const claimData = await response.json();
+
+      // Call parent callback with claim data
+      if (onSubmitClaim) {
+        onSubmitClaim({
+          id: claimData.id,
+          itemId: item.id,
+          itemTitle: item.title,
+          secretAnswer,
+          status: claimData.status
+        });
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message || 'Failed to submit claim. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 relative shadow-2xl">
-        <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800/50">
-          <X className="w-5 h-5" />
+        <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800/50" aria-label="Close modal">
+          <X className="w-5 h-5" aria-hidden="true" />
         </button>
 
         {!submitted ? (
@@ -50,6 +89,11 @@ export function MatchModal({ item, onClose, onSubmitClaim }) {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 text-red-400 text-sm">
+                  {error}
+                </div>
+              )}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
                   Secret Proof Verification Question:
@@ -63,15 +107,24 @@ export function MatchModal({ item, onClose, onSubmitClaim }) {
                   placeholder="Enter your exact answer..."
                   value={secretAnswer}
                   onChange={(e) => setSecretAnswer(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-violet-500"
+                  disabled={loading}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-violet-500 disabled:opacity-50"
                 />
               </div>
 
               <button 
                 type="submit"
-                className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-violet-600/30"
+                disabled={loading}
+                className="w-full bg-violet-600 hover:bg-violet-500 disabled:bg-violet-600/50 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-violet-600/30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Submit Claim for Admin Review
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit Claim for Admin Review'
+                )}
               </button>
             </form>
           </>

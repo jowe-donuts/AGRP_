@@ -110,7 +110,7 @@ between machines.
 
 ## Configuration notes
 
-The backend defaults to a local SQLite database (`agp.db`) and allows the
+The backend defaults to a local SQLite database (`agp.db`) and allows the   
 development frontend origin. The settings module also exposes configuration
 for JWT expiration, upload size, Celery, CORS, and optional cloud storage.
 Review and set these values for your environment before deploying. In

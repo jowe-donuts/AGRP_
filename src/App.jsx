@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import StudentPage from './components/StudentPage';
+import StudentDashboard from './components/StudentDashboard';
 import AdminPage from './components/AdminPage';
+import RedesignedLanding from './components/RedesignedLanding';
 import { MatchModal, AssistantDrawer, AiPhotoMatchModal } from './components/Shared';
-import { Shield, User, Sparkles, Camera, LogOut, Loader } from 'lucide-react';
+import { Loader, LogOut } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { api } from './services/api';
 
@@ -55,10 +56,12 @@ function LoginPage({ onLoginSuccess }) {
               <label className="block text-sm font-medium text-slate-300 mb-2">Full Name</label>
               <input
                 type="text"
+                name={isRegister ? "fullName" : undefined}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="John Doe"
                 required={isRegister}
+                autoComplete={isRegister ? "name" : undefined}
                 className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
               />
             </div>
@@ -68,10 +71,12 @@ function LoginPage({ onLoginSuccess }) {
             <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
             <input
               type="email"
+              name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="student@campus.edu"
               required
+              autoComplete="email"
               className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
           </div>
@@ -80,10 +85,13 @@ function LoginPage({ onLoginSuccess }) {
             <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
             <input
               type="password"
+              name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
+              autoComplete="current-password"
+              spellCheck={false}
               className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
           </div>
@@ -101,7 +109,7 @@ function LoginPage({ onLoginSuccess }) {
           >
             {loading ? (
               <>
-                <Loader className="w-4 h-4 animate-spin" />
+                <Loader className="w-4 h-4 animate-spin" aria-label="Loading" />
                 {isRegister ? 'Creating Account...' : 'Logging in...'}
               </>
             ) : (
@@ -162,27 +170,148 @@ export default function App() {
     setError('');
     try {
       const result = await api.items.list({ size: 50 });
-      setItems(Array.isArray(result) ? result : []);
+      setItems(Array.isArray(result) ? result : getDummyItems());
     } catch (err) {
       console.error('Failed to load items:', err);
       setError('Failed to load items');
       // Use demo data as fallback
-      setItems([
-        {
-          id: 1,
-          title: 'MacBook Air M2 (Space Gray)',
-          category: 'Electronics',
-          location: 'CS Library 3rd Floor',
-          date: 'Today, 10:15 AM',
-          status: 'lost',
-          image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80',
-          description: 'Found on study desk near power outlet',
-        },
-      ]);
+      setItems(getDummyItems());
     } finally {
       setItemsLoading(false);
     }
   };
+
+  // Dummy data for display
+  const getDummyItems = () => [
+    {
+      id: 1,
+      type: 'LOST',
+      title: 'Black iPhone 14 Pro',
+      category: 'Electronics',
+      location: 'Library, 3rd Floor',
+      date: 'Oct 28',
+      image: 'https://picsum.photos/id/669/400/500?grayscale',
+      matchScore: '92%',
+      description: 'Black iPhone 14 Pro with cracked screen protector'
+    },
+    {
+      id: 2,
+      type: 'FOUND',
+      title: 'Sony WH-1000XM5 Headphones',
+      category: 'Electronics',
+      location: 'Student Center',
+      date: 'Oct 27',
+      image: 'https://picsum.photos/id/177/400/500?grayscale',
+      matchScore: '78%',
+      description: 'Black Sony noise-cancelling headphones'
+    },
+    {
+      id: 3,
+      type: 'LOST',
+      title: 'Blue Kanken Backpack',
+      category: 'Bags',
+      location: 'CS Building',
+      date: 'Oct 26',
+      image: 'https://picsum.photos/id/338/400/500?grayscale',
+      description: 'Navy blue Kanken backpack with laptop'
+    },
+    {
+      id: 4,
+      type: 'FOUND',
+      title: 'Samsung Galaxy Watch 5',
+      category: 'Electronics',
+      location: 'Gym',
+      date: 'Oct 25',
+      image: 'https://picsum.photos/id/685/400/500?grayscale',
+      matchScore: '85%',
+      description: 'Silver Samsung Galaxy Watch 5 with strap'
+    },
+    {
+      id: 5,
+      type: 'LOST',
+      title: 'Gold Class Ring',
+      category: 'IDs & Cards',
+      location: 'Science Building',
+      date: 'Oct 24',
+      image: 'https://picsum.photos/id/550/400/500?grayscale',
+      description: 'Gold class ring with initials inside'
+    },
+    {
+      id: 6,
+      type: 'FOUND',
+      title: 'Apple AirPods Pro (2nd Gen)',
+      category: 'Electronics',
+      location: 'Dorm',
+      date: 'Oct 23',
+      image: 'https://picsum.photos/id/665/400/500?grayscale',
+      matchScore: '91%',
+      description: 'White AirPods Pro in charging case'
+    },
+    {
+      id: 7,
+      type: 'LOST',
+      title: 'Brown Leather Wallet',
+      category: 'Wallets',
+      location: 'Dining Hall',
+      date: 'Oct 22',
+      image: 'https://picsum.photos/id/445/400/500?grayscale',
+      description: 'Brown leather wallet with ID and cards'
+    },
+    {
+      id: 8,
+      type: 'FOUND',
+      title: 'Silver House Keys',
+      category: 'Keys',
+      location: 'Library Entrance',
+      date: 'Oct 21',
+      image: 'https://picsum.photos/id/315/400/500?grayscale',
+      matchScore: '67%',
+      description: 'Set of 3 silver keys on blue keychain'
+    },
+    {
+      id: 9,
+      type: 'LOST',
+      title: 'Dell XPS 13 Laptop',
+      category: 'Electronics',
+      location: 'Coffee Shop',
+      date: 'Oct 20',
+      image: 'https://picsum.photos/id/88/400/500?grayscale',
+      matchScore: '88%',
+      description: 'Silver Dell XPS 13 with stickers'
+    },
+    {
+      id: 10,
+      type: 'FOUND',
+      title: 'Red Backpack',
+      category: 'Bags',
+      location: 'Bus Stop',
+      date: 'Oct 19',
+      image: 'https://picsum.photos/id/236/400/500?grayscale',
+      description: 'Bright red backpack with hiking gear'
+    },
+    {
+      id: 11,
+      type: 'LOST',
+      title: 'Student ID Card',
+      category: 'IDs & Cards',
+      location: 'Main Campus',
+      date: 'Oct 18',
+      image: 'https://picsum.photos/id/407/400/500?grayscale',
+      matchScore: '95%',
+      description: 'Blue student ID with photo'
+    },
+    {
+      id: 12,
+      type: 'FOUND',
+      title: 'AirTag',
+      category: 'Electronics',
+      location: 'Parking Lot',
+      date: 'Oct 17',
+      image: 'https://picsum.photos/id/544/400/500?grayscale',
+      matchScore: '72%',
+      description: 'White Apple AirTag with leather holder'
+    }
+  ];
 
   // Load claims from backend
   const loadClaims = async () => {
@@ -267,61 +396,43 @@ export default function App() {
     }
   };
 
-  // Show login screen if not authenticated
+  // Show redesigned landing if not authenticated
   if (!isAuthenticated || authLoading) {
     if (authLoading) {
       return (
-        <div className="min-h-screen bg-[#07090e] flex items-center justify-center">
-          <div className="text-center">
-            <Loader className="w-8 h-8 animate-spin text-violet-500 mx-auto mb-4" />
-            <p className="text-slate-400">Loading...</p>
+        <div style={{
+          minHeight: '100vh',
+          backgroundColor: '#ffffff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              border: '3px solid #fe7141',
+              borderTop: '3px solid transparent',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 16px'
+            }} />
+            <p style={{ color: '#5f5f5f', fontSize: '14px' }}>Loading...</p>
+            <style>{`
+              @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+              }
+            `}</style>
           </div>
         </div>
       );
     }
-    return <LoginPage onLoginSuccess={() => {}} />;
+    return <RedesignedLanding />;
   }
 
   return (
     <div className="w-full">
-      {/* Header with User Info & Logout */}
-      <div className="bg-slate-900/50 backdrop-blur-xl border-b border-slate-800/50 px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-white font-semibold">
-            {user?.full_name?.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <p className="text-white font-semibold">{user?.full_name}</p>
-            <p className="text-slate-400 text-sm">{user?.email}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4">
-          {/* Role Selector (for demo, only for staff/admin) */}
-          {(user?.role === 'staff' || user?.role === 'admin') && (
-            <select
-              value={currentRole}
-              onChange={(e) => setCurrentRole(e.target.value)}
-              className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm"
-            >
-              <option value="student">Student View</option>
-              <option value="admin">Admin View</option>
-            </select>
-          )}
-
-          <button
-            onClick={() => {
-              logout();
-              window.location.reload();
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg font-semibold transition"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </button>
-        </div>
-      </div>
-
       {/* Error Message */}
       {error && (
         <div className="mx-6 mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400">
@@ -339,12 +450,10 @@ export default function App() {
 
       {/* Main Content */}
       {currentRole === 'student' ? (
-        <StudentPage
+        <StudentDashboard
           items={items}
           onReportNewItem={handleReportNewItem}
           onOpenMatchModal={(item) => setSelectedMatchItem(item)}
-          onOpenAssistant={() => setIsAssistantOpen(true)}
-          onOpenPhotoMatch={() => setIsPhotoMatchOpen(true)}
         />
       ) : (
         <AdminPage

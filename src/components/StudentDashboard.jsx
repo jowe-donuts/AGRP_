@@ -24,6 +24,15 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
     return matchesCategory && matchesSearch;
   });
 
+  // Map frontend category names to backend enum values
+  const categoryToEnum = {
+    'Electronics': 'electronics',
+    'Wallets': 'accessory',
+    'Bags': 'accessory',
+    'Keys': 'accessory',
+    'IDs & Cards': 'document'
+  };
+
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -43,11 +52,14 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
       // Determine endpoint based on type
       const endpoint = formData.type === 'LOST' ? '/api/items/lost' : '/api/items/found';
 
+      // Map frontend category to backend enum
+      const backendCategory = categoryToEnum[formData.category] || 'other';
+
       // Create FormData for multipart request
       const formPayload = new FormData();
       formPayload.append('title', formData.title);
-      formPayload.append('description', formData.description);
-      formPayload.append('category', formData.category);
+      formPayload.append('description', formData.description || 'No description provided');
+      formPayload.append('category', backendCategory);
       formPayload.append('location', formData.location);
 
       const response = await fetch(`http://localhost:8000${endpoint}`, {
@@ -526,8 +538,9 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
                 <button
                   type="button"
-                  onClick={() => setShowReportModal(false)}
-                  style={{ padding: '10px 20px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', border: '1px solid #d1d5db', background: '#ffffff', color: '#000000', cursor: 'pointer', fontFamily: 'inherit', transition: 'background-color 0.2s' }}
+                  onClick={() => { setShowReportModal(false); setFormError(''); }}
+                  disabled={formSubmitting}
+                  style={{ padding: '10px 20px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', border: '1px solid #d1d5db', background: '#ffffff', color: '#000000', cursor: 'pointer', fontFamily: 'inherit', transition: 'background-color 0.2s', opacity: formSubmitting ? 0.5 : 1 }}
                   onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#ffffff'; }}
                 >
@@ -535,12 +548,19 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
                 </button>
                 <button
                   type="submit"
-                  style={{ padding: '10px 20px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', border: 'none', background: '#ff488b', color: '#ffffff', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', transition: 'background-color 0.2s' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#e63a6f'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#ff488b'; }}
+                  disabled={formSubmitting}
+                  style={{ padding: '10px 20px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', border: 'none', background: formSubmitting ? '#f9a8c4' : '#ff488b', color: '#ffffff', cursor: formSubmitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', transition: 'background-color 0.2s' }}
+                  onMouseEnter={(e) => { if (!formSubmitting) e.currentTarget.style.backgroundColor = '#e63a6f'; }}
+                  onMouseLeave={(e) => { if (!formSubmitting) e.currentTarget.style.backgroundColor = '#ff488b'; }}
                 >
-                  <Plus style={{ width: '14px', height: '14px' }} />
-                  Submit Report
+                  {formSubmitting ? (
+                    <>Submitting…</>
+                  ) : (
+                    <>
+                      <Plus style={{ width: '14px', height: '14px' }} />
+                      Submit Report
+                    </>
+                  )}
                 </button>
               </div>
             </form>

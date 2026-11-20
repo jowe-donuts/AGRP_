@@ -164,13 +164,39 @@ export default function App() {
     }
   }, [isAuthenticated, token, user]);
 
+  // Map backend category enum to frontend display name
+  const categoryDisplayName = {
+    'electronics': 'Electronics',
+    'clothing': 'Clothing',
+    'accessory': 'Wallets',
+    'document': 'IDs & Cards',
+    'other': 'Other'
+  };
+
+  // Transform backend item to frontend format
+  const transformItem = (item) => ({
+    id: item.id,
+    type: (item.status === 'lost' ? 'LOST' : item.status === 'found' ? 'FOUND' : item.status?.toUpperCase()) || 'LOST',
+    title: item.title,
+    category: categoryDisplayName[item.category] || item.category || 'Other',
+    location: item.location,
+    date: item.date_reported ? new Date(item.date_reported).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recently',
+    image: item.image_urls?.[0] || null,
+    description: item.description,
+    matchScore: null
+  });
+
   // Load items from backend
   const loadItems = async () => {
     setItemsLoading(true);
     setError('');
     try {
       const result = await api.items.list({ size: 50 });
-      setItems(Array.isArray(result) ? result : getDummyItems());
+      if (Array.isArray(result) && result.length > 0) {
+        setItems(result.map(transformItem));
+      } else {
+        setItems(getDummyItems());
+      }
     } catch (err) {
       console.error('Failed to load items:', err);
       setError('Failed to load items');
@@ -325,52 +351,20 @@ export default function App() {
 
   // Report new item
   const handleReportNewItem = async (itemData) => {
-    if (!token) {
-      setError('You must be logged in to report an item');
-      return;
-    }
-
-    try {
-      // Convert item data to FormData for API
-      const formData = new FormData();
-      formData.append('title', itemData.title);
-      formData.append('description', itemData.description || '');
-      formData.append('category', itemData.category || 'electronics');
-      formData.append('location', itemData.location || '');
-      formData.append('color', itemData.color || '');
-      formData.append('brand', itemData.brand || '');
-
-      const endpoint = itemData.type === 'LOST' ? 'reportLost' : 'reportFound';
-      const result = await api.items[endpoint](token, formData);
-
-      // Add new item to list
-      if (result.id) {
-        setItems([...items, result]);
-        setError('');
-      }
-    } catch (err) {
-      console.error('Failed to report item:', err);
-      setError('Failed to report item: ' + err.message);
-    }
+    // Item was already submitted to API by StudentDashboard form.
+    // Just reload items from backend to get the full list.
+    await loadItems();
+    setError('');
   };
 
   // Handle claim submission
-  const handleAddNewClaim = async (itemId) => {
-    if (!token) {
-      setError('You must be logged in to submit a claim');
-      return;
-    }
-
-    try {
-      const result = await api.claims.submit(token, itemId);
-      if (result.id) {
-        setClaims([...claims, result]);
-        setSelectedMatchItem(null);
-        setError('');
-      }
-    } catch (err) {
-      console.error('Failed to submit claim:', err);
-      setError('Failed to submit claim: ' + err.message);
+  const handleAddNewClaim = async (claimData) => {
+    // Claim was already submitted to API by MatchModal.
+    // Just close the modal and reload claims if admin.
+    setSelectedMatchItem(null);
+    setError('');
+    if (user?.role === 'admin' || user?.role === 'staff') {
+      loadClaims();
     }
   };
 

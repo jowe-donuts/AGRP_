@@ -16,7 +16,7 @@ export function MatchModal({ item, onClose, onSubmitClaim }) {
 
     try {
       // Get token from localStorage
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         setError('Not authenticated. Please log in again.');
         setLoading(false);

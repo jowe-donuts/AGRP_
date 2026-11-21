@@ -176,14 +176,14 @@ export default function App() {
   // Transform backend item to frontend format
   const transformItem = (item) => ({
     id: item.id,
-    type: (item.status === 'lost' ? 'LOST' : item.status === 'found' ? 'FOUND' : item.status?.toUpperCase()) || 'LOST',
+    type: item.status === 'lost' ? 'LOST' : item.status === 'found' ? 'FOUND' : item.status?.toUpperCase() || 'LOST',
     title: item.title,
-    category: categoryDisplayName[item.category] || item.category || 'Other',
-    location: item.location,
+    category: item.category || 'Other',
+    location: item.location || '',
     date: item.date_reported ? new Date(item.date_reported).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recently',
     image: item.image_urls?.[0] || null,
-    description: item.description,
-    matchScore: null
+    description: item.description || '',
+    matchScore: null // TODO: Fetch from /api/items/{id}/match-result
   });
 
   // Load items from backend
@@ -451,8 +451,11 @@ export default function App() {
         />
       ) : (
         <AdminPage
-          claims={claims}
-          onUpdateClaimStatus={handleUpdateClaimStatus}
+          onLogout={() => {
+            localStorage.removeItem('authToken');
+            logout();
+            window.location.reload();
+          }}
         />
       )}
 

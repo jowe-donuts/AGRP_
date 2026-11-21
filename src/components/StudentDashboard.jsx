@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, LogOut, Eye, Home, Package } from 'lucide-react';
+import { Search, Plus, Eye, Home, Package, LogOut } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export default function StudentDashboard({ items = [], onReportNewItem, onOpenMatchModal }) {
@@ -42,7 +42,7 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
     setFormError('');
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         setFormError('Not authenticated. Please log in again.');
         setFormSubmitting(false);

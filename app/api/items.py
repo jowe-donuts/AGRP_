@@ -125,9 +125,16 @@ def _create_item_with_status(
 
     logger.info("Created %s item %s (owner=%s)", status.value, item.id, current_user.id)
 
-    # Enqueue CLIP tasks independently.
-    generate_item_embedding_worker.delay(item.id)
-    run_matching_sweep_worker.delay(item.id)
+    # Generate embedding synchronously for instant AI matching
+    # (Celery async queue can cause user-facing delays under load)
+    try:
+        generate_item_embedding(item.id)
+        logger.debug("Generated CLIP embedding for item %s", item.id)
+    except Exception as e:
+        logger.error("Failed to generate embedding for item %s: %s", item.id, e)
+        # Continue without embedding - matching will work when user uploads image
+
+    # Note: Running matching sweep in background is optional - can re-trigger manually
 
     return {"id": item.id, "title": item.title}
 

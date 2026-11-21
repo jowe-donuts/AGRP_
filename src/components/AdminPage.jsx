@@ -10,7 +10,6 @@ export default function AdminPage({ onUpdateClaimStatus, onLogout }) {
   const [claims, setClaims] = useState([]);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(null);
 
   useEffect(() => { loadClaims(); }, []);
 
@@ -20,39 +19,37 @@ export default function AdminPage({ onUpdateClaimStatus, onLogout }) {
       const token = localStorage.getItem('authToken');
       if (!token) return;
 
-      // Fetch all claims (pending ones have status=claimed)
       const response = await fetch('http://localhost:8000/api/claims/', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const claimsData = await response.json();
 
-        // Enrich claims with item details
-        const enriched = await Promise.all(data.map(async (c) => {
-          let itemTitle = `Item #${c.item_id}`;
-          try {
-            const itemRes = await fetch(`http://localhost:8000/api/items/${c.item_id}`);
-            if (itemRes.ok) {
-              const item = await itemRes.json();
-              itemTitle = item.title;
-            }
-          } catch (e) { /* use fallback */ }
+        // In batch: fetch all users in parallel
+        const userPromises = claimsData.map(c => {
+          const token = localStorage.getItem('authToken');
+          return fetch(`http://localhost:8000/api/auth/users/${c.claimant_id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }).then(res => res.json());
+        });
 
-          return {
-            id: c.id,
-            itemId: c.item_id,
-            claimantId: c.claimant_id,
-            studentName: `User #${c.claimant_id}`,
-            studentId: `STU-${String(c.claimant_id).padStart(4, '0')}`,
-            itemTitle,
-            secretAnswer: 'Submitted via app',
-            confidence: '92%',
-            status: c.status === 'claimed' ? 'Pending'
-                  : c.status === 'verified' ? 'Approved'
-                  : c.status === 'returned' ? 'Returned'
-                  : c.status
-          };
+        const usersData = await Promise.all(userPromises);
+
+        // Enrich claims
+        const enriched = claimsData.map((c, idx) => ({
+          id: c.id,
+          itemId: c.item_id,
+          claimantId: c.claimant_id,
+          studentName: usersData[idx]?.full_name || usersData[idx]?.email || `User #${c.claimant_id}`,
+          studentId: `STU-${String(c.claimant_id).padStart(4, '0')}`,
+          itemTitle: `${c.item_id}`,
+          secretAnswer: 'Submitted via app',
+          confidence: '92%',
+          status: c.status === 'claimed' ? 'Pending'
+                : c.status === 'verified' ? 'Approved'
+                : c.status === 'returned' ? 'Returned'
+                : c.status
         }));
 
         setClaims(enriched);
@@ -65,9 +62,11 @@ export default function AdminPage({ onUpdateClaimStatus, onLogout }) {
   };
 
   const handleAction = async (claimId, action) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
     setActionLoading(claimId);
     try {
-      const token = localStorage.getItem('authToken');
       const endpoint = action === 'Approved' ? 'approve' : 'reject';
       const response = await fetch(`http://localhost:8000/api/claims/${claimId}/${endpoint}`, {
         method: 'PATCH',

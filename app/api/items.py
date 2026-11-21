@@ -228,8 +228,34 @@ def list_items(
     
     # Apply pagination
     stmt = stmt.offset((page - 1) * size).limit(size)
-    
-    return list(session.exec(stmt).all())
+    items = list(session.exec(stmt).all())
+
+    # Enrich items with match scores if available
+    if items:
+        # Query all match scores for these items efficiently
+        item_ids = tuple(i.id for i in items)
+        match_stmt = select(Match, Item.status).where(Match.item_id.in_(item_ids))
+        matches_with_status = dict(session.exec(match_stmt).all())
+
+        # Build match scores for each item
+        for item in items:
+            match_list = []
+            if item.id in matches_with_status:
+                match_obj, item_status = matches_with_status[item.id]
+                # Require opposite-type items only (found can match lost, won't match itself)
+                if (item.status == ItemStatus.LOST and item_status == ItemStatus.FOUND) or \
+                   (item.status == ItemStatus.FOUND and item_status == ItemStatus.LOST):
+                    match_list.append({
+                        'score': float(match_obj.score) * 100,
+                        'label': 'Best match',
+                        'bboxes': match_obj.predict_bboxes if hasattr(match_obj, 'predict_bboxes') else None,
+                        'objects': match_obj.predicted_classes if hasattr(match_obj, 'predicted_classes') else None,
+                        'captions': match_obj.predict_captions if hasattr(match_obj, 'predict_captions') else None
+                    })
+
+            item.match_scores = match_list if len(match_list) > 0 else None
+
+    return items
 
 
 @router.get("/{item_id}", response_model=Item, summary="Get an item by ID")

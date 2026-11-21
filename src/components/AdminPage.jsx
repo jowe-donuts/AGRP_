@@ -3,6 +3,7 @@ import {
   ShieldCheck, Users, AlertCircle, CheckCircle2, XCircle,
   Search, Sparkles, LogOut
 } from 'lucide-react';
+import { api } from '../services/api';
 
 export default function AdminPage({ onUpdateClaimStatus, onLogout }) {
   const [adminTab, setAdminTab] = useState('claims');
@@ -10,6 +11,7 @@ export default function AdminPage({ onUpdateClaimStatus, onLogout }) {
   const [claims, setClaims] = useState([]);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(null);
 
   useEffect(() => { loadClaims(); }, []);
 
@@ -19,29 +21,27 @@ export default function AdminPage({ onUpdateClaimStatus, onLogout }) {
       const token = localStorage.getItem('authToken');
       if (!token) return;
 
-      const response = await fetch('http://localhost:8000/api/claims/', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const claimsData = await api.claims.list(token);
+      
+      // Extract unique claimant IDs
+      const claimantIds = [...new Set(claimsData.map(c => c.claimant_id))];
+      
+      // Batch fetch all users in one request
+      const usersData = claimantIds.length > 0 
+        ? await api.auth.getUsersBatch(token, claimantIds)
+        : [];
+      
+      // Create lookup map
+      const usersMap = Object.fromEntries(usersData.map(u => [u.id, u]));
 
-      if (response.ok) {
-        const claimsData = await response.json();
-
-        // In batch: fetch all users in parallel
-        const userPromises = claimsData.map(c => {
-          const token = localStorage.getItem('authToken');
-          return fetch(`http://localhost:8000/api/auth/users/${c.claimant_id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          }).then(res => res.json());
-        });
-
-        const usersData = await Promise.all(userPromises);
-
-        // Enrich claims
-        const enriched = claimsData.map((c, idx) => ({
+      // Enrich claims
+      const enriched = claimsData.map((c) => {
+        const user = usersMap[c.claimant_id];
+        return {
           id: c.id,
           itemId: c.item_id,
           claimantId: c.claimant_id,
-          studentName: usersData[idx]?.full_name || usersData[idx]?.email || `User #${c.claimant_id}`,
+          studentName: user?.full_name || user?.email || `User #${c.claimant_id}`,
           studentId: `STU-${String(c.claimant_id).padStart(4, '0')}`,
           itemTitle: `${c.item_id}`,
           secretAnswer: 'Submitted via app',
@@ -50,10 +50,10 @@ export default function AdminPage({ onUpdateClaimStatus, onLogout }) {
                 : c.status === 'verified' ? 'Approved'
                 : c.status === 'returned' ? 'Returned'
                 : c.status
-        }));
+        };
+      });
 
-        setClaims(enriched);
-      }
+      setClaims(enriched);
     } catch (err) {
       console.error('Failed to load claims:', err);
     } finally {
@@ -67,15 +67,10 @@ export default function AdminPage({ onUpdateClaimStatus, onLogout }) {
 
     setActionLoading(claimId);
     try {
-      const endpoint = action === 'Approved' ? 'approve' : 'reject';
-      const response = await fetch(`http://localhost:8000/api/claims/${claimId}/${endpoint}`, {
-        method: 'PATCH',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        loadClaims();
-      }
+      if (action === 'Approved') await api.claims.approve(token, claimId);
+      else if (action === 'Rejected') await api.claims.reject(token, claimId);
+      else if (action === 'Returned') await api.claims.return(token, claimId);
+      await loadClaims();
     } catch (err) {
       console.error('Failed to update claim:', err);
     } finally {
@@ -255,6 +250,14 @@ export default function AdminPage({ onUpdateClaimStatus, onLogout }) {
                             <XCircle className="w-4 h-4" /> Reject
                           </button>
                         </div>
+                      ) : claim.status === 'Approved' ? (
+                        <button
+                          onClick={() => handleAction(claim.id, 'Returned')}
+                          disabled={actionLoading === claim.id}
+                          className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition"
+                        >
+                          Mark Returned
+                        </button>
                       ) : (
                         <span className="text-xs text-slate-500 italic font-medium px-3 py-1 bg-slate-950/40 rounded-lg">Resolved</span>
                       )}

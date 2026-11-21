@@ -79,6 +79,28 @@ export const api = {
         body: JSON.stringify(data)
       });
       return handleResponse(response);
+    },
+
+    /**
+     * Get user by ID (admin only)
+     */
+    getUserById: async (token, userId) => {
+      const response = await fetch(`${API_URL}/api/auth/users/${userId}`, {
+        headers: getAuthHeader(token)
+      });
+      return handleResponse(response);
+    },
+
+    /**
+     * Get multiple users by IDs in one request (admin only)
+     */
+    getUsersBatch: async (token, userIds) => {
+      const params = new URLSearchParams();
+      userIds.forEach(id => params.append('ids', id));
+      const response = await fetch(`${API_URL}/api/auth/users?${params.toString()}`, {
+        headers: getAuthHeader(token)
+      });
+      return handleResponse(response);
     }
   },
 
@@ -201,6 +223,16 @@ export const api = {
      */
     getById: async (token, claimId) => {
       const response = await fetch(`${API_URL}/api/claims/${claimId}`, {
+        headers: getAuthHeader(token)
+      });
+      return handleResponse(response);
+    },
+
+    /**
+     * Get current user claim history
+     */
+    history: async (token) => {
+      const response = await fetch(`${API_URL}/api/claims/me`, {
         headers: getAuthHeader(token)
       });
       return handleResponse(response);

@@ -10,7 +10,7 @@ from loguru import logger
 from sqlmodel import Session, select
 
 from app.core.dependencies import get_current_user
-from app.db.models import Category, Item, ItemStatus, Role, User
+from app.db.models import Category, Item, ItemStatus, Match, Role, User
 from app.db.session import get_session
 from app.workers.tasks import generate_item_embedding_worker, run_matching_sweep_worker
 
@@ -182,7 +182,7 @@ def create_found_item(
 
 @router.get(
     "/",
-    response_model=list[Item],
+    response_model=list[dict],
     summary="List items with optional filters",
 )
 def list_items(
@@ -232,30 +232,47 @@ def list_items(
 
     # Enrich items with match scores if available
     if items:
-        # Query all match scores for these items efficiently
         item_ids = tuple(i.id for i in items)
-        match_stmt = select(Match, Item.status).where(Match.item_id.in_(item_ids))
-        matches_with_status = dict(session.exec(match_stmt).all())
+        match_stmt = select(Match).where(Match.item_id.in_(item_ids)).order_by(Match.created_at.desc())
+        matches = list(session.exec(match_stmt).all())
 
-        # Build match scores for each item
+        # Group matches by item_id (keep only most recent per item)
+        matches_by_item_id = {}
+        for match_obj in matches:
+            matches_by_item_id.setdefault(match_obj.item_id, match_obj)
+
+        # Batch fetch all candidate items in one query
+        candidate_ids = [m.candidate_id for m in matches_by_item_id.values()]
+        candidates_map = {}
+        if candidate_ids:
+            candidates_stmt = select(Item).where(Item.id.in_(candidate_ids))
+            candidates = session.exec(candidates_stmt).all()
+            candidates_map = {c.id: c for c in candidates}
+
+        enriched_items = []
         for item in items:
-            match_list = []
-            if item.id in matches_with_status:
-                match_obj, item_status = matches_with_status[item.id]
-                # Require opposite-type items only (found can match lost, won't match itself)
-                if (item.status == ItemStatus.LOST and item_status == ItemStatus.FOUND) or \
-                   (item.status == ItemStatus.FOUND and item_status == ItemStatus.LOST):
-                    match_list.append({
-                        'score': float(match_obj.score) * 100,
+            match_obj = matches_by_item_id.get(item.id)
+            match_list = None
+            if match_obj:
+                candidate = candidates_map.get(match_obj.candidate_id)
+                if candidate and (
+                    (item.status == ItemStatus.LOST and candidate.status == ItemStatus.FOUND)
+                    or (item.status == ItemStatus.FOUND and candidate.status == ItemStatus.LOST)
+                ):
+                    match_list = [{
+                        'candidate_id': candidate.id,
+                        'candidate_title': candidate.title,
+                        'score': float(match_obj.score),
                         'label': 'Best match',
-                        'bboxes': match_obj.predict_bboxes if hasattr(match_obj, 'predict_bboxes') else None,
-                        'objects': match_obj.predicted_classes if hasattr(match_obj, 'predicted_classes') else None,
-                        'captions': match_obj.predict_captions if hasattr(match_obj, 'predict_captions') else None
-                    })
+                    }]
 
-            item.match_scores = match_list if len(match_list) > 0 else None
+            item_data = item.model_dump()
+            item_data['match_scores'] = match_list
+            enriched_items.append(item_data)
 
-    return items
+        return enriched_items
+
+    return [item.model_dump() for item in items]
 
 
 @router.get("/{item_id}", response_model=Item, summary="Get an item by ID")

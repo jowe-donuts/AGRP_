@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Eye, Home, Package, LogOut } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { api } from '../services/api';
 
 export default function StudentDashboard({ items = [], onReportNewItem, onOpenMatchModal, user }) {
   const { logout } = useAuth();
@@ -14,14 +15,21 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
     location: '',
     description: ''
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
 
-  const categories = ['All', 'Electronics', 'Wallets', 'Bags', 'Keys', 'IDs & Cards'];
+  const categories = ['All', 'Electronics', 'Wallets', 'Bags', 'Keys', 'IDs & Cards', 'My Posts'];
 
   const filteredItems = items.filter(item => {
-    const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'All'
+      || selectedCategory === 'My Posts'
+      || item.category === selectedCategory;
     const matchesSearch = (item.title?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
                           (item.location?.toLowerCase() || '').includes(searchQuery.toLowerCase());
-    const matchesMyPosts = selectedCategory === 'My Posts' ? item.owner_id === user?.id : true;
+    const matchesMyPosts = selectedCategory !== 'My Posts' 
+    ? true 
+    : (user?.id ? item.owner_id === user.id : false);
     return matchesCategory && matchesSearch && matchesMyPosts;
   });
 
@@ -56,27 +64,18 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
       // Map frontend category to backend enum
       const backendCategory = categoryToEnum[formData.category] || 'other';
 
-      // Create FormData for multipart request
       const formPayload = new FormData();
       formPayload.append('title', formData.title);
       formPayload.append('description', formData.description || 'No description provided');
       formPayload.append('category', backendCategory);
       formPayload.append('location', formData.location);
-
-      const response = await fetch(`http://localhost:8000${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formPayload
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to report item');
+      if (selectedImage) {
+        formPayload.append('file', selectedImage);
       }
 
-      const newItem = await response.json();
+      const newItem = formData.type === 'LOST'
+        ? await api.items.reportLost(token, formPayload)
+        : await api.items.reportFound(token, formPayload);
 
       // Call parent callback
       if (onReportNewItem) {
@@ -93,11 +92,21 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
 
       setShowReportModal(false);
       setFormData({ type: 'LOST', title: '', category: 'Electronics', location: '', description: '' });
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+      setSelectedImage(null);
+      setImagePreview('');
     } catch (err) {
       setFormError(err.message || 'Failed to report item. Please try again.');
     } finally {
       setFormSubmitting(false);
     }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setSelectedImage(file);
+    setImagePreview(file ? URL.createObjectURL(file) : '');
   };
 
   return (
@@ -153,11 +162,11 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
 
           {/* Navigation */}
           <nav style={{ paddingLeft: '12px', paddingRight: '12px', marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <a href="#" style={{ padding: '10px 12px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', backgroundColor: '#ff488b', color: '#ffffff', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'inherit', transition: 'background-color 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#e63a6f'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#ff488b'; }}>
+            <a href="#" onClick={(e) => { e.preventDefault(); setSelectedCategory('All'); }} style={{ padding: '10px 12px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', backgroundColor: selectedCategory === 'All' ? '#ff488b' : 'transparent', color: selectedCategory === 'All' ? '#ffffff' : '#6b7280', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'inherit', transition: 'background-color 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#e63a6f'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#ff488b'; }}>
               <Home style={{ width: '16px', height: '16px' }} />
               Feed
             </a>
-            <a href="#" style={{ padding: '10px 12px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', color: '#6b7280', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'inherit', transition: 'background-color 0.2s, color 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f0f0f0'; e.currentTarget.style.color = '#000000'; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#6b7280'; }}>
+            <a href="#" onClick={(e) => { e.preventDefault(); setSelectedCategory('My Posts'); }} style={{ padding: '10px 12px', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', borderRadius: '4px', backgroundColor: selectedCategory === 'My Posts' ? '#ff488b' : 'transparent', color: selectedCategory === 'My Posts' ? '#ffffff' : '#6b7280', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'inherit', transition: 'background-color 0.2s, color 0.2s' }}>
               <Package style={{ width: '16px', height: '16px' }} />
               My Posts
             </a>
@@ -533,6 +542,32 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#ffffff', color: '#000000', minHeight: '80px', resize: 'vertical' }}
                 />
+              </div>
+
+              {/* Image Upload */}
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', color: '#000000' }} htmlFor="image">Upload Image</label>
+                <input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '14px', fontFamily: 'inherit', backgroundColor: '#ffffff', color: '#000000' }}
+                />
+                {selectedImage && (
+                  <div style={{ marginTop: '8px', fontSize: '12px', color: '#4caf50' }}>
+                    Image selected: {selectedImage.name}
+                  </div>
+                )}
+                {imagePreview && (
+                  <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'center' }}>
+                    <img
+                      src={imagePreview}
+                      alt="Image preview"
+                      style={{ maxWidth: '100%', height: 'auto', borderRadius: '4px', border: '1px solid #d1d5db', marginTop: '8px' }}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Footer */}

@@ -448,6 +448,7 @@ export default function App() {
           items={items}
           onReportNewItem={handleReportNewItem}
           onOpenMatchModal={(item) => setSelectedMatchItem(item)}
+          user={user}
         />
       ) : (
         <AdminPage

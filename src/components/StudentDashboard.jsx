@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, Eye, Home, Package, LogOut } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
-export default function StudentDashboard({ items = [], onReportNewItem, onOpenMatchModal }) {
-  const { user, logout } = useAuth();
+export default function StudentDashboard({ items = [], onReportNewItem, onOpenMatchModal, user }) {
+  const { logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showReportModal, setShowReportModal] = useState(false);
@@ -21,7 +21,8 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
     const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
     const matchesSearch = (item.title?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
                           (item.location?.toLowerCase() || '').includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    const matchesMyPosts = selectedCategory === 'My Posts' ? item.owner_id === user?.id : true;
+    return matchesCategory && matchesSearch && matchesMyPosts;
   });
 
   // Map frontend category names to backend enum values

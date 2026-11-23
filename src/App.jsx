@@ -188,7 +188,8 @@ export default function App() {
     owner_id: item.owner_id,
     matchScore: item.match_scores?.[0]?.score != null
       ? Number(item.match_scores[0].score).toFixed(1)
-      : null
+      : null,
+    matches: item.match_scores || null
   });
 
   // Load items from backend

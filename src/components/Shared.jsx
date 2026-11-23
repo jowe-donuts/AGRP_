@@ -3,12 +3,13 @@ import { Sparkles, X, Send, Bot, CheckCircle, Camera, Upload, ArrowRight, Shield
 import { api } from '../services/api';
 
 export function MatchModal({ item, onClose, onSubmitClaim }) {
-  const [secretAnswer, setSecretAnswer] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   if (!item) return null;
+
+  const bestMatch = item.matches?.[0] || null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,7 +34,6 @@ export function MatchModal({ item, onClose, onSubmitClaim }) {
           id: claimData.id,
           itemId: item.id,
           itemTitle: item.title,
-          secretAnswer,
           status: claimData.status
         });
       }
@@ -56,20 +56,29 @@ export function MatchModal({ item, onClose, onSubmitClaim }) {
         {!submitted ? (
           <>
             <div className="flex items-center gap-2 text-violet-400 text-xs font-bold uppercase tracking-wider mb-2">
-              <Sparkles className="w-4 h-4" /> AI Visual & Spatial Match Breakdown
+              <Sparkles className="w-4 h-4" /> AI Match &amp; Claim Review
             </div>
             <h2 className="text-xl font-bold text-white mb-4">Ownership Verification for {item.title}</h2>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <p className="text-xs text-slate-400 mb-1">Visual Similarity</p>
-                <p className="text-xl font-black text-emerald-400">96.4%</p>
-                <p className="text-[11px] text-slate-500 mt-1">Color histogram & brand logo match</p>
+                <p className="text-xs text-slate-400 mb-1">AI Visual Match</p>
+                {bestMatch ? (
+                  <>
+                    <p className="text-xl font-black text-emerald-400">{Number(bestMatch.score).toFixed(1)}%</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Most similar to &ldquo;{bestMatch.candidate_title}&rdquo;</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-bold text-slate-400">No AI match yet</p>
+                    <p className="text-[11px] text-slate-500 mt-1">We match each post against opposite-type items. You can still claim if you recognize this item.</p>
+                  </>
+                )}
               </div>
               <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <p className="text-xs text-slate-400 mb-1">Spatial Proximity</p>
-                <p className="text-xl font-black text-violet-400">89.1%</p>
-                <p className="text-[11px] text-slate-500 mt-1">Found 45m from reported lost zone</p>
+                <p className="text-xs text-slate-400 mb-1">Item Details</p>
+                <p className="text-sm font-bold text-slate-200">{item.type}</p>
+                <p className="text-[11px] text-slate-500 mt-1">&#128205; {item.location || 'Location not specified'}</p>
               </div>
             </div>
 
@@ -80,21 +89,7 @@ export function MatchModal({ item, onClose, onSubmitClaim }) {
                 </div>
               )}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Secret Proof Verification Question:
-                </label>
-                <p className="text-xs text-violet-300 italic bg-violet-950/30 p-3 rounded-xl border border-violet-800/30 mb-2">
-                  "{item.secretProof || 'What specific distinguishing mark or sticker is attached?'}"
-                </p>
-                <input 
-                  type="text"
-                  required
-                  placeholder="Enter your exact answer..."
-                  value={secretAnswer}
-                  onChange={(e) => setSecretAnswer(e.target.value)}
-                  disabled={loading}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-violet-500 disabled:opacity-50"
-                />
+                <p className="text-xs text-slate-400">The AI matched this post against {item.type === 'LOST' ? 'found' : 'lost'} items. If this is your item, submit a claim - a campus admin will verify it.</p>
               </div>
 
               <button 

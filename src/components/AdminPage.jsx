@@ -34,18 +34,24 @@ export default function AdminPage({ onUpdateClaimStatus, onLogout }) {
       // Create lookup map
       const usersMap = Object.fromEntries(usersData.map(u => [u.id, u]));
 
+      // Batch-fetch items to show real AI scores alongside each claim
+      const itemsData = await api.items.list({ size: 50 });
+      const itemsMap = Object.fromEntries(itemsData.map(i => [i.id, i]));
+
       // Enrich claims
       const enriched = claimsData.map((c) => {
         const user = usersMap[c.claimant_id];
+        const item = itemsMap[c.item_id];
+        const bestScore = item?.match_scores?.[0]?.score;
         return {
           id: c.id,
           itemId: c.item_id,
           claimantId: c.claimant_id,
           studentName: user?.full_name || user?.email || `User #${c.claimant_id}`,
           studentId: `STU-${String(c.claimant_id).padStart(4, '0')}`,
-          itemTitle: `${c.item_id}`,
-          secretAnswer: 'Submitted via app',
-          confidence: '92%',
+          itemTitle: c.item_title || c.item_id,
+          proofImage: c.proof_image,
+          aiScore: bestScore != null ? `${Number(bestScore).toFixed(1)}%` : 'No match',
           status: c.status === 'claimed' ? 'Pending'
                 : c.status === 'verified' ? 'Approved'
                 : c.status === 'returned' ? 'Returned'
@@ -213,13 +219,17 @@ export default function AdminPage({ onUpdateClaimStatus, onLogout }) {
                       <div className="text-xs text-slate-500 font-mono mt-0.5">ID: {claim.itemId}</div>
                     </td>
                     <td className="p-5">
-                      <span className="text-violet-200 font-mono text-xs bg-violet-950/50 px-3 py-1.5 rounded-xl border border-violet-800/30 inline-block">
-                        "{claim.secretAnswer}"
-                      </span>
+                      {claim.proofImage ? (
+                        <a href={claim.proofImage} target="_blank" rel="noreferrer">
+                          <img src={claim.proofImage} alt={`Proof for ${claim.itemTitle}`} className="h-14 w-14 object-cover rounded-xl border border-slate-700" />
+                        </a>
+                      ) : (
+                        <span className="text-slate-500 text-xs italic">No photo submitted</span>
+                      )}
                     </td>
                     <td className="p-5">
-                      <span className="text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" /> {claim.confidence}
+                      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${claim.aiScore === 'No match' ? 'text-slate-500 bg-slate-800/60 border border-slate-700' : 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20'}`}>
+                        <Sparkles className="w-3 h-3" /> {claim.aiScore}
                       </span>
                     </td>
                     <td className="p-5">

@@ -1,11 +1,12 @@
 """Claims endpoints for item ownership verification workflow."""
 
-from typing import Optional
+from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile, status
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
+from app.api.items import _get_image_public_url
 from app.core.dependencies import get_current_user, require_role
 from app.db.models import Claim, Item, ItemStatus, Role, User
 from app.db.session import get_session
@@ -36,15 +37,6 @@ def _update_claim_and_item(
     return claim
 
 
-# -----------------------------------------------------------------------
-# Pydantic schemas
-# -----------------------------------------------------------------------
-class ClaimCreate(BaseModel):
-    """Request to submit a claim on an item."""
-
-    item_id: int
-
-
 class ClaimResponse(BaseModel):
     """Response for a claim."""
 
@@ -53,6 +45,7 @@ class ClaimResponse(BaseModel):
     claimant_id: int
     status: ItemStatus
     item_title: Optional[str] = None
+    proof_image: Optional[str] = None
     created_at: Optional[str] = None
 
     class Config:
@@ -67,6 +60,7 @@ def _claim_response(claim: Claim, session: Session) -> dict:
         "claimant_id": claim.claimant_id,
         "status": claim.status,
         "item_title": item.title if item else None,
+        "proof_image": claim.proof_image,
         "created_at": claim.created_at.isoformat() if claim.created_at else None,
     }
 
@@ -81,25 +75,28 @@ def _claim_response(claim: Claim, session: Session) -> dict:
     summary="Submit a claim on a found/lost item",
 )
 def create_claim(
-    claim_in: ClaimCreate,
+    request: Request,
+    item_id: Annotated[int, Form()],
+    proof_image: Annotated[Optional[UploadFile], File()] = None,
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
 ):
     """
     Submit a claim that the user believes an item belongs to them.
 
+    Accepts multipart form data: ``item_id`` plus an optional ``proof_image``
+    photo of the item, which the admin can compare against the posted image.
+
     The claim starts in CLAIMED status and awaits staff/admin verification.
     """
     # Verify item exists
-    item = session.get(Item, claim_in.item_id)
+    item = session.get(Item, item_id)
     if not item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
 
     # Check if user already claimed this item
     existing = session.exec(
-        select(Claim).where(
-            Claim.item_id == claim_in.item_id, Claim.claimant_id == current_user.id
-        )
+        select(Claim).where(Claim.item_id == item_id, Claim.claimant_id == current_user.id)
     ).first()
     if existing:
         raise HTTPException(
@@ -107,17 +104,26 @@ def create_claim(
             detail="You have already claimed this item",
         )
 
+    # Save optional proof image (same storage/validation as item uploads)
+    proof_url = None
+    if proof_image and proof_image.filename:
+        try:
+            proof_url = _get_image_public_url(proof_image, request)
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+
     # Create claim
     claim = Claim(
-        item_id=claim_in.item_id,
+        item_id=item_id,
         claimant_id=current_user.id,
         status=ItemStatus.CLAIMED,
+        proof_image=proof_url,
     )
     session.add(claim)
     session.commit()
     session.refresh(claim)
 
-    return claim
+    return _claim_response(claim, session)
 
 
 # -----------------------------------------------------------------------
@@ -165,7 +171,7 @@ def read_claim(
             status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view this claim"
         )
 
-    return claim
+    return _claim_response(claim, session)
 
 
 # -----------------------------------------------------------------------
@@ -194,7 +200,7 @@ def list_claims(
     if item_id:
         stmt = stmt.where(Claim.item_id == item_id)
 
-    return session.exec(stmt).all()
+    return [_claim_response(claim, session) for claim in session.exec(stmt).all()]
 
 
 # -----------------------------------------------------------------------
@@ -219,7 +225,10 @@ def approve_claim(
     if not claim:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Claim not found")
 
-    return _update_claim_and_item(claim, ItemStatus.VERIFIED, ItemStatus.VERIFIED, session)
+    return _claim_response(
+        _update_claim_and_item(claim, ItemStatus.VERIFIED, ItemStatus.VERIFIED, session),
+        session,
+    )
 
 
 # -----------------------------------------------------------------------
@@ -275,4 +284,7 @@ def return_item(
             detail="Claim must be verified before marking as returned",
         )
 
-    return _update_claim_and_item(claim, ItemStatus.RETURNED, ItemStatus.RETURNED, session)
+    return _claim_response(
+        _update_claim_and_item(claim, ItemStatus.RETURNED, ItemStatus.RETURNED, session),
+        session,
+    )

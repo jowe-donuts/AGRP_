@@ -169,6 +169,8 @@ export default function App() {
     'electronics': 'Electronics',
     'clothing': 'Clothing',
     'accessory': 'Wallets',
+    'bags': 'Bags',
+    'keys': 'Keys',
     'document': 'IDs & Cards',
     'other': 'Other'
   };

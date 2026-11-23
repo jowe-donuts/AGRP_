@@ -37,8 +37,8 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
   const categoryToEnum = {
     'Electronics': 'electronics',
     'Wallets': 'accessory',
-    'Bags': 'accessory',
-    'Keys': 'accessory',
+    'Bags': 'bags',
+    'Keys': 'keys',
     'IDs & Cards': 'document'
   };
 

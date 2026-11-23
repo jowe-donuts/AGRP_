@@ -44,6 +44,8 @@ class Category(str, Enum):
     ELECTRONICS = "electronics"
     CLOTHING = "clothing"
     ACCESSORY = "accessory"
+    BAGS = "bags"
+    KEYS = "keys"
     DOCUMENT = "document"
     OTHER = "other"
 

@@ -13,9 +13,13 @@ from sqlmodel import Session, select
 from app.core.dependencies import get_current_user
 from app.db.models import Category, Item, ItemStatus, Match, Role, User
 from app.db.session import get_session
-from app.workers.tasks import generate_item_embedding_worker, run_matching_sweep_worker
+from app.workers.tasks import generate_item_embedding, run_matching_sweep_worker
 
 router = APIRouter(prefix="/api/items", tags=["items"])
+
+# shortcut: length caps only, no HTML sanitization — local tool, no deploy planned
+_TITLE_MAX = 100
+_DESC_MAX = 1000
 
 
 def _get_image_public_url(file: UploadFile, request: Request) -> str:
@@ -150,11 +154,6 @@ def _create_item_with_status(
     status_code=status.HTTP_201_CREATED,
     summary="Report a lost item",
 )
-# shortcut: length caps only, no HTML sanitization — local tool, no deploy planned
-_TITLE_MAX = 100
-_DESC_MAX = 1000
-
-
 def create_lost_item(
     request: Request,
     title: Annotated[str, Field(min_length=1, max_length=_TITLE_MAX), Form()],

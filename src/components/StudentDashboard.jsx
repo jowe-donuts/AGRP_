@@ -547,6 +547,7 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
               {/* Image Upload */}
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', color: '#000000' }} htmlFor="image">Upload Image</label>
+                <p style={{ margin: '0 0 8px', fontSize: '12px', color: '#6b7280' }}>Recommended - a photo enables AI matching. Without one, only your title and description are used.</p>
                 <input
                   id="image"
                   type="file"

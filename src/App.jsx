@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import StudentDashboard from './components/StudentDashboard';
 import AdminPage from './components/AdminPage';
+import { CATEGORY_DISPLAY } from './constants/categories';
 import RedesignedLanding from './components/RedesignedLanding';
 import { MatchModal, AssistantDrawer, AiPhotoMatchModal } from './components/Shared';
 import { Loader, LogOut } from 'lucide-react';
@@ -163,23 +164,12 @@ export default function App() {
     }
   }, [isAuthenticated, token, user]);
 
-  // Map backend category enum to frontend display name
-  const categoryDisplayName = {
-    'electronics': 'Electronics',
-    'clothing': 'Clothing',
-    'accessory': 'Wallets',
-    'bags': 'Bags',
-    'keys': 'Keys',
-    'document': 'IDs & Cards',
-    'other': 'Other'
-  };
-
   // Transform backend item to frontend format
   const transformItem = (item) => ({
     id: item.id,
     type: item.status === 'lost' ? 'LOST' : item.status === 'found' ? 'FOUND' : item.status?.toUpperCase() || 'LOST',
     title: item.title,
-    category: categoryDisplayName[item.category] || 'Other',
+    category: CATEGORY_DISPLAY[item.category] || 'Other',
     location: item.location || '',
     date: item.date_reported ? new Date(item.date_reported).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recently',
     image: item.image_urls?.[0] || null,

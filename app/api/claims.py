@@ -94,7 +94,14 @@ def create_claim(
     if not item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
 
-    # Check if user already claimed this item
+    # Terminal states can no longer be claimed
+    if item.status in (ItemStatus.VERIFIED, ItemStatus.RETURNED):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This item is no longer available for claim.",
+        )
+
+    # A user can't claim the same item twice
     existing = session.exec(
         select(Claim).where(Claim.item_id == item_id, Claim.claimant_id == current_user.id)
     ).first()
@@ -102,6 +109,16 @@ def create_claim(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You have already claimed this item",
+        )
+
+    # A pending claim by anyone else blocks a competing claim
+    pending = session.exec(
+        select(Claim).where(Claim.item_id == item_id, Claim.status == ItemStatus.CLAIMED)
+    ).first()
+    if pending:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A claim is already pending for this item.",
         )
 
     # Save optional proof image (same storage/validation as item uploads)

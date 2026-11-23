@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Eye, Home, Package, LogOut } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
+import { CATEGORY_TO_ENUM, CATEGORIES } from '../constants/categories';
 
 export default function StudentDashboard({ items = [], onReportNewItem, onOpenMatchModal, user }) {
   const { logout } = useAuth();
@@ -32,15 +33,6 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
     : (user?.id ? item.owner_id === user.id : false);
     return matchesCategory && matchesSearch && matchesMyPosts;
   });
-
-  // Map frontend category names to backend enum values
-  const categoryToEnum = {
-    'Electronics': 'electronics',
-    'Wallets': 'accessory',
-    'Bags': 'bags',
-    'Keys': 'keys',
-    'IDs & Cards': 'document'
-  };
 
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState('');

@@ -183,7 +183,10 @@ export default function App() {
     date: item.date_reported ? new Date(item.date_reported).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recently',
     image: item.image_urls?.[0] || null,
     description: item.description || '',
-    matchScore: null // TODO: Fetch from /api/items/{id}/match-result
+    owner_id: item.owner_id,
+    matchScore: item.match_scores?.[0]?.score != null
+      ? Number(item.match_scores[0].score).toFixed(1)
+      : null
   });
 
   // Load items from backend

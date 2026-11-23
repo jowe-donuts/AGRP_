@@ -7,6 +7,7 @@ from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile, status
 from loguru import logger
+from pydantic import Field
 from sqlmodel import Session, select
 
 from app.core.dependencies import get_current_user
@@ -119,22 +120,27 @@ def _create_item_with_status(
         owner_id=current_user.id,
     )
 
-    session.add(item)
-    session.commit()
-    session.refresh(item)
-
-    logger.info("Created %s item %s (owner=%s)", status.value, item.id, current_user.id)
-
-    # Generate embedding synchronously for instant AI matching
-    # (Celery async queue can cause user-facing delays under load)
     try:
-        generate_item_embedding(item.id)
-        logger.debug("Generated CLIP embedding for item %s", item.id)
-    except Exception as e:
-        logger.error("Failed to generate embedding for item %s: %s", item.id, e)
-        # Continue without embedding - matching will work when user uploads image
+        session.add(item)
+        session.commit()
+        session.refresh(item)
+        
+        logger.info("Created %s item %s (owner=%s)", status.value, item.id, current_user.id)
 
-    # Note: Running matching sweep in background is optional - can re-trigger manually
+        # Generate embedding synchronously for instant AI matching
+        try:
+            generate_item_embedding(item.id)
+            logger.debug("Generated CLIP embedding for item %s", item.id)
+        except Exception as e:
+            logger.error("Failed to generate embedding for item %s: %s", item.id, e)
+            # Item created but no embedding - user can still see it, just no matches yet
+    except Exception as e:
+        session.rollback()
+        logger.error("Failed to create item: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create item: {str(e)}"
+        )
 
     return {"id": item.id, "title": item.title}
 
@@ -144,10 +150,15 @@ def _create_item_with_status(
     status_code=status.HTTP_201_CREATED,
     summary="Report a lost item",
 )
+# shortcut: length caps only, no HTML sanitization — local tool, no deploy planned
+_TITLE_MAX = 100
+_DESC_MAX = 1000
+
+
 def create_lost_item(
     request: Request,
-    title: Annotated[str, Form()],
-    description: Annotated[str, Form()],
+    title: Annotated[str, Field(min_length=1, max_length=_TITLE_MAX), Form()],
+    description: Annotated[str, Field(max_length=_DESC_MAX), Form()],
     category: Annotated[Category, Form()],
     location: Annotated[str, Form()],
     color: Annotated[Optional[str], Form()] = None,
@@ -170,8 +181,8 @@ def create_lost_item(
 )
 def create_found_item(
     request: Request,
-    title: Annotated[str, Form()],
-    description: Annotated[str, Form()],
+    title: Annotated[str, Field(min_length=1, max_length=_TITLE_MAX), Form()],
+    description: Annotated[str, Field(max_length=_DESC_MAX), Form()],
     category: Annotated[Category, Form()],
     location: Annotated[str, Form()],
     color: Annotated[Optional[str], Form()] = None,
@@ -240,13 +251,31 @@ def list_items(
     # Enrich items with match scores if available
     if items:
         item_ids = tuple(i.id for i in items)
-        match_stmt = select(Match).where(Match.item_id.in_(item_ids)).order_by(Match.created_at.desc())
+        # LIMIT: only get latest match per item to prevent memory issues
+        # Use subquery to get most recent match_id per item_id
+        from sqlalchemy import func
+        latest_match_subq = (
+            select(
+                Match.item_id,
+                func.max(Match.created_at).label('latest_created')
+            )
+            .where(Match.item_id.in_(item_ids))
+            .group_by(Match.item_id)
+            .subquery()
+        )
+        
+        match_stmt = (
+            select(Match)
+            .join(
+                latest_match_subq,
+                (Match.item_id == latest_match_subq.c.item_id) &
+                (Match.created_at == latest_match_subq.c.latest_created)
+            )
+        )
         matches = list(session.exec(match_stmt).all())
 
-        # Group matches by item_id (keep only most recent per item)
-        matches_by_item_id = {}
-        for match_obj in matches:
-            matches_by_item_id.setdefault(match_obj.item_id, match_obj)
+        # Group matches by item_id (now guaranteed one per item)
+        matches_by_item_id = {m.item_id: m for m in matches}
 
         # Batch fetch all candidate items in one query
         candidate_ids = [m.candidate_id for m in matches_by_item_id.values()]

@@ -178,7 +178,7 @@ export default function App() {
     id: item.id,
     type: item.status === 'lost' ? 'LOST' : item.status === 'found' ? 'FOUND' : item.status?.toUpperCase() || 'LOST',
     title: item.title,
-    category: item.category || 'Other',
+    category: categoryDisplayName[item.category] || 'Other',
     location: item.location || '',
     date: item.date_reported ? new Date(item.date_reported).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Recently',
     image: item.image_urls?.[0] || null,

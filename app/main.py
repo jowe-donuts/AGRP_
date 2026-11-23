@@ -1,7 +1,10 @@
 """FastAPI application entry‑point."""
 
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api import admin, auth, claims, items
 from app.core.config import settings
@@ -20,6 +23,11 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "DELETE"],
     allow_headers=["*"],
 )
+
+# Serve uploaded images
+uploads_dir = os.path.join(os.getcwd(), "uploads")
+os.makedirs(uploads_dir, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
 # ----------------------------------------------------------------------
 # Routers

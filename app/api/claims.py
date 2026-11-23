@@ -52,9 +52,23 @@ class ClaimResponse(BaseModel):
     item_id: int
     claimant_id: int
     status: ItemStatus
+    item_title: Optional[str] = None
+    created_at: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+
+def _claim_response(claim: Claim, session: Session) -> dict:
+    item = session.get(Item, claim.item_id)
+    return {
+        "id": claim.id,
+        "item_id": claim.item_id,
+        "claimant_id": claim.claimant_id,
+        "status": claim.status,
+        "item_title": item.title if item else None,
+        "created_at": claim.created_at.isoformat() if claim.created_at else None,
+    }
 
 
 # -----------------------------------------------------------------------
@@ -104,6 +118,24 @@ def create_claim(
     session.refresh(claim)
 
     return claim
+
+
+# -----------------------------------------------------------------------
+# Claim history for current user
+# -----------------------------------------------------------------------
+@router.get("/me", response_model=list[ClaimResponse], summary="List my claims")
+def list_my_claims(
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """
+    Retrieve the claim history for the current user.
+
+    Returns all claims made by the user, ordered by most recent.
+    """
+    stmt = select(Claim).where(Claim.claimant_id == current_user.id).order_by(Claim.created_at.desc())
+    claims = list(session.exec(stmt).all())
+    return [_claim_response(claim, session) for claim in claims]
 
 
 # -----------------------------------------------------------------------
@@ -203,19 +235,16 @@ def reject_claim(
     current_user: User = Depends(require_role(Role.STAFF)),
     session: Session = Depends(get_session),
 ):
-    """
-    Reject a claim. The claim is deleted (add a "rejected_at" field to track rejections).
-
-    Only accessible to staff or admin.
-    """
+    """Reject a claim and preserve it in the claim history."""
     claim = session.get(Claim, claim_id)
     if not claim:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Claim not found")
 
-    session.delete(claim)
+    claim.status = ItemStatus.REJECTED
+    session.add(claim)
     session.commit()
-
-    return claim
+    session.refresh(claim)
+    return _claim_response(claim, session)
 
 
 # -----------------------------------------------------------------------

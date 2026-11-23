@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Sparkles, X, Send, Bot, CheckCircle, Camera, Upload, ArrowRight, ShieldAlert } from 'lucide-react';
+import { api } from '../services/api';
 
 export function MatchModal({ item, onClose, onSubmitClaim }) {
   const [secretAnswer, setSecretAnswer] = useState('');
@@ -16,7 +17,7 @@ export function MatchModal({ item, onClose, onSubmitClaim }) {
 
     try {
       // Get token from localStorage
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         setError('Not authenticated. Please log in again.');
         setLoading(false);
@@ -24,23 +25,7 @@ export function MatchModal({ item, onClose, onSubmitClaim }) {
       }
 
       // Submit claim to backend API
-      const response = await fetch('http://localhost:8000/api/claims/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          item_id: item.id
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to submit claim');
-      }
-
-      const claimData = await response.json();
+      const claimData = await api.claims.submit(token, item.id);
 
       // Call parent callback with claim data
       if (onSubmitClaim) {

@@ -1,8 +1,8 @@
 """Authentication endpoints: register, login, and user profile."""
 
-from typing import Optional
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
 from sqlmodel import Session, select
@@ -147,3 +147,61 @@ def update_me(
         role=current_user.role,
         is_active=current_user.is_active,
     )
+
+
+# -----------------------------------------------------------------------
+# Get User by ID (requires admin/staff role)
+# -----------------------------------------------------------------------
+@router.get("/users/{user_id}", response_model=UserResponse, summary="Get a user by ID")
+def read_user(
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """Get a user's public profile fields by user ID."""
+    if current_user.role not in [Role.STAFF, Role.ADMIN]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    return UserResponse(
+        id=user.id,
+        email=user.email,
+        full_name=user.full_name,
+        role=user.role,
+        is_active=user.is_active,
+    )
+
+
+# -----------------------------------------------------------------------
+# Batch Get Users by IDs (requires admin/staff role)
+# -----------------------------------------------------------------------
+@router.get("/users", response_model=List[UserResponse], summary="Get multiple users by IDs")
+def read_users_batch(
+    ids: List[int] = Query(..., description="Comma-separated user IDs"),
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    """Get multiple users' public profile fields in one query (batch lookup for admin)."""
+    if current_user.role not in [Role.STAFF, Role.ADMIN]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+    
+    if not ids:
+        return []
+    
+    # Single query for all users
+    stmt = select(User).where(User.id.in_(ids))
+    users = session.exec(stmt).all()
+    
+    return [
+        UserResponse(
+            id=u.id,
+            email=u.email,
+            full_name=u.full_name,
+            role=u.role,
+            is_active=u.is_active,
+        )
+        for u in users
+    ]

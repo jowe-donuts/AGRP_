@@ -35,6 +35,7 @@ class ItemStatus(str, Enum):
     CLAIMED = "claimed"
     VERIFIED = "verified"
     RETURNED = "returned"
+    REJECTED = "rejected"
 
 
 class Category(str, Enum):

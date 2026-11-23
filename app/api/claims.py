@@ -52,8 +52,8 @@ class ClaimResponse(BaseModel):
         from_attributes = True
 
 
-def _claim_response(claim: Claim, session: Session) -> dict:
-    item = session.get(Item, claim.item_id)
+def _claim_response(claim: Claim, session: Session, items: Optional[dict] = None) -> dict:
+    item = (items or {}).get(claim.item_id) or session.get(Item, claim.item_id)
     return {
         "id": claim.id,
         "item_id": claim.item_id,
@@ -141,7 +141,14 @@ def list_my_claims(
     """
     stmt = select(Claim).where(Claim.claimant_id == current_user.id).order_by(Claim.created_at.desc())
     claims = list(session.exec(stmt).all())
-    return [_claim_response(claim, session) for claim in claims]
+    # Batch-fetch all referenced items in one query (avoids N+1 session.get per claim)
+    item_ids = {c.item_id for c in claims}
+    items = (
+        {i.id: i for i in session.exec(select(Item).where(Item.id.in_(item_ids))).all()}
+        if item_ids
+        else {}
+    )
+    return [_claim_response(claim, session, items) for claim in claims]
 
 
 # -----------------------------------------------------------------------

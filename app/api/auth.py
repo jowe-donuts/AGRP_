@@ -180,7 +180,7 @@ def read_user(
 # -----------------------------------------------------------------------
 @router.get("/users", response_model=List[UserResponse], summary="Get multiple users by IDs")
 def read_users_batch(
-    ids: List[int] = Query(..., description="Comma-separated user IDs"),
+    ids: List[int] = Query(..., description="User IDs, one parameter per id (e.g. ?ids=1&ids=2)"),
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
 ):

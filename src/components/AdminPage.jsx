@@ -55,6 +55,7 @@ export default function AdminPage({ onUpdateClaimStatus, onLogout }) {
           status: c.status === 'claimed' ? 'Pending'
                 : c.status === 'verified' ? 'Approved'
                 : c.status === 'returned' ? 'Returned'
+                : c.status === 'rejected' ? 'Rejected'
                 : c.status
         };
       });

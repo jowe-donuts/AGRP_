@@ -145,7 +145,6 @@ function LoginPage({ onLoginSuccess }) {
 
 export default function App() {
   const { user, token, loading: authLoading, isAuthenticated, logout } = useAuth();
-  const [currentRole, setCurrentRole] = useState('student');
   const [selectedMatchItem, setSelectedMatchItem] = useState(null);
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [isPhotoMatchOpen, setIsPhotoMatchOpen] = useState(false);
@@ -449,20 +448,20 @@ export default function App() {
       )}
 
       {/* Main Content */}
-      {currentRole === 'student' ? (
-        <StudentDashboard
-          items={items}
-          onReportNewItem={handleReportNewItem}
-          onOpenMatchModal={(item) => setSelectedMatchItem(item)}
-          user={user}
-        />
-      ) : (
+      {user?.role === 'admin' || user?.role === 'staff' ? (
         <AdminPage
           onLogout={() => {
             localStorage.removeItem('authToken');
             logout();
             window.location.reload();
           }}
+        />
+      ) : (
+        <StudentDashboard
+          items={items}
+          onReportNewItem={handleReportNewItem}
+          onOpenMatchModal={(item) => setSelectedMatchItem(item)}
+          user={user}
         />
       )}
 

@@ -197,13 +197,17 @@ export const api = {
   // ============================================
   claims: {
     /**
-     * Submit a claim on an item
+     * Submit a claim on an item (multipart: optional proof photo)
      */
-    submit: async (token, itemId) => {
+    submit: async (token, itemId, proofFile) => {
+      const form = new FormData();
+      form.append('item_id', itemId);
+      if (proofFile) form.append('proof_image', proofFile);
       const response = await fetch(`${API_URL}/api/claims/`, {
         method: 'POST',
-        headers: getAuthHeader(token),
-        body: JSON.stringify({ item_id: itemId })
+        // No Content-Type header - browser sets the multipart boundary
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: form
       });
       return handleResponse(response);
     },

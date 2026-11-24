@@ -44,6 +44,8 @@ class Category(str, Enum):
     ELECTRONICS = "electronics"
     CLOTHING = "clothing"
     ACCESSORY = "accessory"
+    BAGS = "bags"
+    KEYS = "keys"
     DOCUMENT = "document"
     OTHER = "other"
 
@@ -114,6 +116,9 @@ class Claim(SQLModel, table=True):
 
     claimant_id: int = Field(foreign_key="user.id")
     claimant: User = Relationship(back_populates="claims")
+
+    # Optional photo of the item taken by the claimant as ownership proof
+    proof_image: Optional[str] = Field(default=None, max_length=500)
 
 # ----------------------------------------------------------------------
 # Match Table – stores CLIP similarity results between opposite‑type items

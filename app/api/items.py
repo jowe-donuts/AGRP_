@@ -13,7 +13,7 @@ from sqlmodel import Session, select
 from app.core.dependencies import get_current_user
 from app.db.models import Category, Item, ItemStatus, Match, Role, User
 from app.db.session import get_session
-from app.workers.tasks import generate_item_embedding, run_matching_sweep_worker
+from app.workers.tasks import generate_item_embedding, run_matching_sweep
 
 router = APIRouter(prefix="/api/items", tags=["items"])
 
@@ -138,6 +138,13 @@ def _create_item_with_status(
         except Exception as e:
             logger.error("Failed to generate embedding for item %s: %s", item.id, e)
             # Item created but no embedding - user can still see it, just no matches yet
+
+        # Match this item against opposite-type items so it appears in results
+        try:
+            run_matching_sweep(item.id)
+            logger.debug("Ran matching sweep for item %s", item.id)
+        except Exception as e:
+            logger.error("Failed to run matching sweep for item %s: %s", item.id, e)
     except Exception as e:
         session.rollback()
         logger.error("Failed to create item: %s", e)
@@ -251,12 +258,13 @@ def list_items(
     if items:
         item_ids = tuple(i.id for i in items)
         # LIMIT: only get latest match per item to prevent memory issues
-        # Use subquery to get most recent match_id per item_id
+        # Use subquery to get most recent match_id per item_id (max id = newest;
+        # id tiebreaker makes the choice deterministic when created_at ties)
         from sqlalchemy import func
         latest_match_subq = (
             select(
                 Match.item_id,
-                func.max(Match.created_at).label('latest_created')
+                func.max(Match.id).label('latest_match_id')
             )
             .where(Match.item_id.in_(item_ids))
             .group_by(Match.item_id)
@@ -268,7 +276,7 @@ def list_items(
             .join(
                 latest_match_subq,
                 (Match.item_id == latest_match_subq.c.item_id) &
-                (Match.created_at == latest_match_subq.c.latest_created)
+                (Match.id == latest_match_subq.c.latest_match_id)
             )
         )
         matches = list(session.exec(match_stmt).all())

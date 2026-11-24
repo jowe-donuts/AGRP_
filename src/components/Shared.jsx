@@ -3,12 +3,22 @@ import { Sparkles, X, Send, Bot, CheckCircle, Camera, Upload, ArrowRight, Shield
 import { api } from '../services/api';
 
 export function MatchModal({ item, onClose, onSubmitClaim }) {
-  const [secretAnswer, setSecretAnswer] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [proofFile, setProofFile] = useState(null);
+  const [proofPreview, setProofPreview] = useState('');
 
   if (!item) return null;
+
+  const bestMatch = item.matches?.[0] || null;
+
+  const handleProofChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    if (proofPreview) URL.revokeObjectURL(proofPreview);
+    setProofFile(file);
+    setProofPreview(file ? URL.createObjectURL(file) : '');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,8 +34,12 @@ export function MatchModal({ item, onClose, onSubmitClaim }) {
         return;
       }
 
-      // Submit claim to backend API
-      const claimData = await api.claims.submit(token, item.id);
+      // Submit claim to backend API (with optional proof photo)
+      const claimData = await api.claims.submit(token, item.id, proofFile);
+
+      if (proofPreview) URL.revokeObjectURL(proofPreview);
+      setProofFile(null);
+      setProofPreview('');
 
       // Call parent callback with claim data
       if (onSubmitClaim) {
@@ -33,7 +47,6 @@ export function MatchModal({ item, onClose, onSubmitClaim }) {
           id: claimData.id,
           itemId: item.id,
           itemTitle: item.title,
-          secretAnswer,
           status: claimData.status
         });
       }
@@ -48,28 +61,52 @@ export function MatchModal({ item, onClose, onSubmitClaim }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 relative shadow-2xl">
-        <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800/50" aria-label="Close modal">
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+        <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800/50 z-10" aria-label="Close modal">
           <X className="w-5 h-5" aria-hidden="true" />
         </button>
 
         {!submitted ? (
           <>
             <div className="flex items-center gap-2 text-violet-400 text-xs font-bold uppercase tracking-wider mb-2">
-              <Sparkles className="w-4 h-4" /> AI Visual & Spatial Match Breakdown
+              <Sparkles className="w-4 h-4" /> AI Match &amp; Claim Review
             </div>
-            <h2 className="text-xl font-bold text-white mb-4">Ownership Verification for {item.title}</h2>
+
+            {/* Enlarged post */}
+            {item.image && (
+              <img src={item.image} alt={item.title} className="w-full h-56 object-cover rounded-2xl border border-slate-800 mb-4" />
+            )}
+            <div className="flex items-center gap-2 flex-wrap mb-2">
+              <h2 className="text-xl font-bold text-white">{item.title}</h2>
+              <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${item.type === 'LOST' ? 'bg-rose-500/20 text-rose-300' : 'bg-emerald-500/20 text-emerald-300'}`}>
+                {item.type}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mb-1">{item.category} &#183; {item.date}</p>
+            <p className="text-xs text-slate-400 mb-3">&#128205; {item.location || 'Location not specified'}</p>
+            {item.description && (
+              <p className="text-sm text-slate-300 bg-slate-950/60 border border-slate-800 rounded-xl p-3 mb-4">{item.description}</p>
+            )}
 
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <p className="text-xs text-slate-400 mb-1">Visual Similarity</p>
-                <p className="text-xl font-black text-emerald-400">96.4%</p>
-                <p className="text-[11px] text-slate-500 mt-1">Color histogram & brand logo match</p>
+                <p className="text-xs text-slate-400 mb-1">AI Visual Match</p>
+                {bestMatch ? (
+                  <>
+                    <p className="text-xl font-black text-emerald-400">{Number(bestMatch.score).toFixed(1)}%</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Most similar to &ldquo;{bestMatch.candidate_title}&rdquo;</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-bold text-slate-400">No AI match yet</p>
+                    <p className="text-[11px] text-slate-500 mt-1">We match each post against opposite-type items. You can still claim if you recognize this item.</p>
+                  </>
+                )}
               </div>
               <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <p className="text-xs text-slate-400 mb-1">Spatial Proximity</p>
-                <p className="text-xl font-black text-violet-400">89.1%</p>
-                <p className="text-[11px] text-slate-500 mt-1">Found 45m from reported lost zone</p>
+                <p className="text-xs text-slate-400 mb-1">Ownership Proof</p>
+                <p className="text-sm font-bold text-slate-200">Photo of the item</p>
+                <p className="text-[11px] text-slate-500 mt-1">Recommended - the admin compares your photo with the posted one before approving.</p>
               </div>
             </div>
 
@@ -80,21 +117,20 @@ export function MatchModal({ item, onClose, onSubmitClaim }) {
                 </div>
               )}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Secret Proof Verification Question:
+                <label className="block text-xs font-semibold text-slate-300 mb-2">
+                  <Upload className="w-3.5 h-3.5 inline mr-1.5" />Proof Photo (optional but recommended)
                 </label>
-                <p className="text-xs text-violet-300 italic bg-violet-950/30 p-3 rounded-xl border border-violet-800/30 mb-2">
-                  "{item.secretProof || 'What specific distinguishing mark or sticker is attached?'}"
-                </p>
-                <input 
-                  type="text"
-                  required
-                  placeholder="Enter your exact answer..."
-                  value={secretAnswer}
-                  onChange={(e) => setSecretAnswer(e.target.value)}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProofChange}
                   disabled={loading}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-violet-500 disabled:opacity-50"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 file:mr-3 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-white disabled:opacity-50"
                 />
+                {proofPreview && (
+                  <img src={proofPreview} alt="Proof preview" className="mt-2 max-h-32 rounded-xl border border-slate-800" />
+                )}
+                <p className="text-[11px] text-slate-500 mt-2">A photo helps the admin verify ownership. You can still submit without one.</p>
               </div>
 
               <button 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Eye, Home, Package, LogOut } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../services/api';
+import { CATEGORY_TO_ENUM, CATEGORIES } from '../constants/categories';
 
 export default function StudentDashboard({ items = [], onReportNewItem, onOpenMatchModal, user }) {
   const { logout } = useAuth();
@@ -32,15 +33,6 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
     : (user?.id ? item.owner_id === user.id : false);
     return matchesCategory && matchesSearch && matchesMyPosts;
   });
-
-  // Map frontend category names to backend enum values
-  const categoryToEnum = {
-    'Electronics': 'electronics',
-    'Wallets': 'accessory',
-    'Bags': 'accessory',
-    'Keys': 'accessory',
-    'IDs & Cards': 'document'
-  };
 
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
@@ -547,6 +539,7 @@ export default function StudentDashboard({ items = [], onReportNewItem, onOpenMa
               {/* Image Upload */}
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', color: '#000000' }} htmlFor="image">Upload Image</label>
+                <p style={{ margin: '0 0 8px', fontSize: '12px', color: '#6b7280' }}>Recommended - a photo enables AI matching. Without one, only your title and description are used.</p>
                 <input
                   id="image"
                   type="file"
